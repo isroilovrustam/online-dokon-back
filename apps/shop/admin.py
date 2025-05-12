@@ -1,38 +1,48 @@
-# admin.py
 from django.contrib import admin
-from .models import (Shop, ShopAddress, Cart, CartItem)
+from .models import Shop, ShopAddress, Basket
 
 
 class ShopAddressInline(admin.TabularInline):
     model = ShopAddress
-    extra = 1
-
-
-class CartItemInline(admin.TabularInline):
-    model = CartItem
-    extra = 0
+    extra = 1  # Yangi address qo‘shish uchun 1 ta bo‘sh form
+    fields = ('full_address',)
+    show_change_link = True
 
 
 @admin.register(Shop)
 class ShopAdmin(admin.ModelAdmin):
-    list_display = ('shop_name', 'owner', 'shop_code', 'is_active', 'shop_type', 'is_subscription_active')
-    list_filter = ('shop_type', 'is_active')
-    search_fields = ('shop_name', 'shop_code', 'owner__user_id')
-    prepopulated_fields = {"shop_code": ("shop_name",)}
+    list_display = ('shop_name', 'owner', 'shop_code', 'is_active', 'is_subscription_active', 'shop_type', 'created_at')
+    list_filter = ('is_active', 'shop_type', 'created_at')
+    search_fields = ('shop_name', 'shop_code', 'owner__first_name', 'owner__last_name', 'phone_number')
+    readonly_fields = ('created_at', 'updated_at', 'is_subscription_active')
     inlines = [ShopAddressInline]
-    save_on_top = True
-    autocomplete_fields = ['owner']
+    fieldsets = (
+        ('Do‘kon ma’lumotlari', {
+            'fields': ('shop_name', 'owner', 'phone_number', 'shop_code', 'description', 'shop_logo', 'shop_type')
+        }),
+        ('Telegram / Instagram', {
+            'fields': ('telegram_group', 'telegram_channel', 'instagram_url')
+        }),
+        ('Holat va abonement', {
+            'fields': ('is_active', 'subscription_start', 'subscription_end', 'is_subscription_active')
+        }),
+        ('Tizim maydonlari', {
+            'fields': ('created_at', 'updated_at')
+        }),
+    )
 
 
-@admin.register(Cart)
-class CartAdmin(admin.ModelAdmin):
-    list_display = ('user', 'shop', 'total_price', 'created_at')
-    inlines = [CartItemInline]
-    search_fields = ('user__user_id', 'shop__shop_name')
-    readonly_fields = ('total_price',)
+@admin.register(Basket)
+class BasketAdmin(admin.ModelAdmin):
+    list_display = ('user', 'shop', 'product', 'quantity', 'created_at')
+    list_filter = ('shop', 'created_at')
+    search_fields = ('user__id', 'shop__shop_name', 'product__product_name')
+    autocomplete_fields = ('user', 'shop', 'product')  # Katta ma'lumot bo‘lsa qulay bo‘ladi
+    readonly_fields = ('created_at', 'updated_at')
 
 
-@admin.register(CartItem)
-class CartItemAdmin(admin.ModelAdmin):
-    list_display = ('cart', 'product', 'quantity', 'price')
-    autocomplete_fields = ['product', 'cart']
+@admin.register(ShopAddress)
+class ShopAddressAdmin(admin.ModelAdmin):
+    list_display = ('shop', 'full_address', 'created_at')
+    search_fields = ('shop__shop_name', 'full_address')
+    list_filter = ('created_at',)

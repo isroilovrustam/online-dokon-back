@@ -2,17 +2,19 @@ from rest_framework import serializers
 
 from product.serializers import ProductSerializer
 from shop.models import Shop
-from .models import BotUser, FavoriteProduct
+from .models import BotUser, FavoriteProduct, UserConfirmation
 
+class UserConfirmationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserConfirmation
+        fields = '__all__'
 
 class BotUserSerializer(serializers.ModelSerializer):
+    confirmation = UserConfirmationSerializer(read_only=True)
     class Meta:
         model = BotUser
-        fields = [
-            "phone_number", "telegram_id", "first_name",
-            "last_name", "telegram_username", "location", "language"
-        ]
-        read_only_fields = ["first_name", "last_name", "telegram_username", "location", "language"]
+        fields = ["phone_number", "telegram_id", "first_name",
+            "last_name", "telegram_username", "location", "language", "confirmation"]
 
 
 class BotUserProfileUpdateSerializer(serializers.ModelSerializer):

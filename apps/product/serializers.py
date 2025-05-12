@@ -22,6 +22,7 @@ class ProductVariantSerializer(serializers.ModelSerializer):
             'stock', 'is_active'
         ]
 
+
 class ProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
     variants = ProductVariantSerializer(many=True, read_only=True)

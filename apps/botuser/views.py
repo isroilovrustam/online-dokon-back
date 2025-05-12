@@ -78,6 +78,18 @@ class BotUserDetailView(APIView):
         serializer = BotUserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def patch(self, request, telegram_id):
+        try:
+            user = BotUser.objects.get(telegram_id=telegram_id)
+        except BotUser.DoesNotExist:
+            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = BotUserSerializer(user, data=request.data, partial=True)  # faqat yuborilgan maydonlarni yangilaydi
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class GetUserPhoneView(APIView):
     def get(self, request, telegram_id):
@@ -108,7 +120,3 @@ class SetActiveShopAPIView(APIView):
             serializer.save()
             return Response({"detail": "Aktiv do‘kon muvaffaqiyatli yangilandi."}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-

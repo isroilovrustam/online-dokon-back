@@ -2,11 +2,7 @@ from django.utils import timezone
 from datetime import timedelta
 from django.db import models
 import random
-
-from rest_framework.exceptions import ValidationError
-
 from product.models import Product
-# SMS yoki boshqa bot orqali yuborish (Bot B)
 from .utils import send_telegram_message
 from django.conf import settings
 
@@ -102,18 +98,11 @@ class UserConfirmation(models.Model):
 
 class UserAddress(models.Model):
     user = models.ForeignKey(BotUser, on_delete=models.CASCADE, related_name='addresses')  # Manzil kimga tegishli
-
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)  # GPS bo‘yicha latitude
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)  # GPS bo‘yicha longitude
-
     full_address = models.CharField(max_length=255, null=True, blank=True)  # Manzil (matn shaklida)
-
-    label = models.CharField(max_length=100, blank=True, null=True)  # Masalan: Uy, Ish
-
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.label or f"Address {self.id}"
+        return f"{self.user.full_name} {self.full_address}"
 
 
 class Order(models.Model):

@@ -31,9 +31,8 @@ class BotUserAdmin(admin.ModelAdmin):
 
 @admin.register(UserAddress)
 class UserAddressAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'label', 'full_address', 'created_at')
-    list_filter = ('label',)
-    search_fields = ('full_address', 'label')
+    list_display = ('id', 'user', 'full_address', 'created_at')
+    search_fields = ('full_address', )
     autocomplete_fields = ('user',)
 
 
