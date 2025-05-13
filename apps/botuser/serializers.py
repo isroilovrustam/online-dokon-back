@@ -1,35 +1,27 @@
 from rest_framework import serializers
 
-from product.serializers import ProductSerializer
 from shop.models import Shop
-from .models import BotUser, FavoriteProduct, UserConfirmation
+from .models import BotUser, UserAddress
 
-class UserConfirmationSerializer(serializers.ModelSerializer):
+
+class UserAddressSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserConfirmation
-        fields = '__all__'
+        model = UserAddress
+        fields = ["id", "full_address", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
 
 class BotUserSerializer(serializers.ModelSerializer):
-    confirmation = UserConfirmationSerializer(read_only=True)
+    addresses = UserAddressSerializer(many=True, required=False)
+    active_shop = serializers.SerializerMethodField()
+
+    def get_active_shop(self, obj):
+        return obj.active_shop.shop_code
+
     class Meta:
         model = BotUser
-        fields = ["phone_number", "telegram_id", "first_name",
-            "last_name", "telegram_username", "location", "language", "confirmation"]
-
-
-class BotUserProfileUpdateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BotUser
-        fields = [
-            "first_name", "last_name", "telegram_username",
-            "location", "language"
-        ]
-
-
-class PhoneVerificationSerializer(serializers.Serializer):
-    phone_number = serializers.CharField()
-    code = serializers.CharField()
-
+        fields = ["user_roles", "active_shop", "phone_number", "telegram_id", "first_name",
+                  "last_name", "telegram_username", "language", 'addresses']
 
 
 class SetActiveShopSerializer(serializers.Serializer):
@@ -60,6 +52,3 @@ class SetActiveShopSerializer(serializers.Serializer):
         user.active_shop = shop
         user.save(update_fields=["active_shop"])
         return user
-
-
-

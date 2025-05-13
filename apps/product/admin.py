@@ -1,4 +1,5 @@
 from django.contrib import admin
+from .translations import CustomAdmin
 from .models import (
     ProductCategory, ProductColor, ProductSize, ProductTaste, ProductVolume,
     Product, ProductImage, ProductVariant
@@ -6,13 +7,13 @@ from .models import (
 
 
 @admin.register(ProductCategory)
-class ProductCategoryAdmin(admin.ModelAdmin):
+class ProductCategoryAdmin(CustomAdmin):
     list_display = ('name',)
     search_fields = ('name',)
 
 
 @admin.register(ProductColor)
-class ProductColorAdmin(admin.ModelAdmin):
+class ProductColorAdmin(CustomAdmin):
     list_display = ('color',)
     search_fields = ('color',)
 
@@ -24,7 +25,7 @@ class ProductSizeAdmin(admin.ModelAdmin):
 
 
 @admin.register(ProductTaste)
-class ProductTasteAdmin(admin.ModelAdmin):
+class ProductTasteAdmin(CustomAdmin):
     list_display = ('taste',)
     search_fields = ('taste',)
 
@@ -52,7 +53,7 @@ class ProductVariantInline(admin.TabularInline):
 
 
 @admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
+class ProductAdmin(CustomAdmin):
     list_display = ('product_name', 'shop', 'category', 'created_at')
     search_fields = ('product_name', 'description')
     list_filter = ('shop', 'category')

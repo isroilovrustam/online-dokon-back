@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Shop, ShopAddress, Basket
+from .translations import CustomAdmin
 
 
 class ShopAddressInline(admin.TabularInline):
@@ -10,7 +11,7 @@ class ShopAddressInline(admin.TabularInline):
 
 
 @admin.register(Shop)
-class ShopAdmin(admin.ModelAdmin):
+class ShopAdmin(CustomAdmin):
     list_display = ('shop_name', 'owner', 'shop_code', 'is_active', 'is_subscription_active', 'shop_type', 'created_at')
     list_filter = ('is_active', 'shop_type', 'created_at')
     search_fields = ('shop_name', 'shop_code', 'owner__first_name', 'owner__last_name', 'phone_number')
@@ -42,7 +43,7 @@ class BasketAdmin(admin.ModelAdmin):
 
 
 @admin.register(ShopAddress)
-class ShopAddressAdmin(admin.ModelAdmin):
+class ShopAddressAdmin(CustomAdmin):
     list_display = ('shop', 'full_address', 'created_at')
     search_fields = ('shop__shop_name', 'full_address')
     list_filter = ('created_at',)

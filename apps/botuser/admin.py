@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import (
-    BotUser, UserConfirmation, UserAddress,
+    BotUser, UserAddress,
     Order, OrderItem, FavoriteProduct
 )
 
@@ -11,11 +11,6 @@ class UserAddressInline(admin.TabularInline):
     readonly_fields = ('created_at',)
 
 
-class UserConfirmationInline(admin.StackedInline):
-    model = UserConfirmation
-    extra = 0
-    readonly_fields = ('expiration_time', 'is_confirmed')
-
 
 @admin.register(BotUser)
 class BotUserAdmin(admin.ModelAdmin):
@@ -23,7 +18,6 @@ class BotUserAdmin(admin.ModelAdmin):
     list_filter = ('user_roles', 'language', 'created_at')
     search_fields = ('phone_number', 'telegram_username', 'first_name', 'last_name')
     readonly_fields = ('created_at', 'updated_at')
-    inlines = [UserConfirmationInline, UserAddressInline]
     ordering = ('-created_at',)
     date_hierarchy = 'created_at'
     autocomplete_fields = ('active_shop',)
@@ -33,14 +27,6 @@ class BotUserAdmin(admin.ModelAdmin):
 class UserAddressAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'full_address', 'created_at')
     search_fields = ('full_address', )
-    autocomplete_fields = ('user',)
-
-
-@admin.register(UserConfirmation)
-class UserConfirmationAdmin(admin.ModelAdmin):
-    list_display = ('user', 'code', 'expiration_time', 'is_confirmed')
-    list_filter = ('is_confirmed',)
-    search_fields = ('user__phone_number', 'code')
     autocomplete_fields = ('user',)
 
 

@@ -6,12 +6,14 @@ from shop.models import Shop
 class ProductCategory(models.Model):
     name = models.CharField(max_length=100, unique=True)
     image = models.FileField(upload_to='product_category_image/', null=True, blank=True)
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='categories')
 
     def __str__(self):
         return self.name
 
 
 class ProductColor(models.Model):
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='colors')
     color = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
@@ -19,6 +21,7 @@ class ProductColor(models.Model):
 
 
 class ProductSize(models.Model):
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='sizes')
     size = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
@@ -26,6 +29,7 @@ class ProductSize(models.Model):
 
 
 class ProductTaste(models.Model):
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='tastes')
     taste = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
@@ -33,6 +37,7 @@ class ProductTaste(models.Model):
 
 
 class ProductVolume(models.Model):
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='volumes')
     volume = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
@@ -62,7 +67,7 @@ class ProductImage(models.Model):
 
 class ProductVariant(models.Model):
     product = models.ForeignKey(Product, related_name='variants', on_delete=models.CASCADE)
-    color = models.ForeignKey(ProductColor, on_delete=models.CASCADE)
+    color = models.ForeignKey(ProductColor, on_delete=models.CASCADE, null=True, blank=True)
     size = models.ForeignKey(ProductSize, on_delete=models.CASCADE, null=True, blank=True)
     volume = models.ForeignKey(ProductVolume, on_delete=models.CASCADE, null=True, blank=True)
     taste = models.ForeignKey(ProductTaste, on_delete=models.CASCADE, null=True, blank=True)
@@ -87,17 +92,3 @@ class ProductVariant(models.Model):
     def __str__(self):
         return f"{self.product.product_name} | Rang: {self.color} | Razmer: {self.size or '-'} | Hajm: {self.volume or '-'} | Ta’m: {self.taste or '-'}"
 
-    def has_discount(self):
-        return self.discount_price and self.discount_price < self.price
-
-    def get_discount_percent(self):
-        if self.has_discount():
-            return round(100 - (self.discount_price / self.price) * 100)
-        return 0
-
-    def save(self, *args, **kwargs):
-        if self.discount_percent and not self.discount_price:
-            self.discount_price = self.price * (1 - self.discount_percent / 100)
-        elif self.discount_price and not self.discount_percent:
-            self.discount_percent = round(100 - (self.discount_price / self.price) * 100)
-        super().save(*args, **kwargs)

@@ -4,6 +4,7 @@ from django.urls import path, include
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from django.conf.urls.i18n import i18n_patterns
 
 from config import settings
 
@@ -27,7 +28,11 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 
     path('admin/', admin.site.urls),
-    path('api/v1/', include('apps.urls'))
+    # path('api/v1/', include('apps.urls'))
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+urlpatterns += i18n_patterns(
+    path('api/v1/', include('apps.urls')),
+)

@@ -1,32 +1,109 @@
 from rest_framework import status
-from rest_framework.generics import ListAPIView, RetrieveAPIView
+from botuser.models import BotUser
+from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 import requests
 from config import settings
-from .models import Product
-from .serializers import ProductSerializer
+from .models import Product, ProductColor, ProductTaste, ProductVolume, ProductSize, ProductCategory
+from .serializers import ProductSerializer, ProductSizeSerializer, ProductVolumeSerializer, ProductColorSerializer, \
+    ProductTasteSerializer, ProductCategorySerializer, ProductGetSerializer
 from shop.models import Basket
 from botuser.models import FavoriteProduct, UserAddress, Order, OrderItem
 
 
+class ProductCategoryCreateAPIView(CreateAPIView):
+    queryset = ProductCategory.objects.all()
+    serializer_class = ProductCategorySerializer
+
+
+class ProductColorCreateAPIView(CreateAPIView):
+    queryset = ProductColor.objects.all()
+    serializer_class = ProductColorSerializer
+
+
+class ProductSizeCreateAPIView(CreateAPIView):
+    queryset = ProductSize.objects.all()
+    serializer_class = ProductSizeSerializer
+
+
+class ProductTasteCreateAPIView(CreateAPIView):
+    queryset = ProductTaste.objects.all()
+    serializer_class = ProductTasteSerializer
+
+
+class ProductVolumeCreateAPIView(CreateAPIView):
+    queryset = ProductVolume.objects.all()
+    serializer_class = ProductVolumeSerializer
+
+
+class ProductVolumeListAPIView(ListAPIView):
+    serializer_class = ProductVolumeSerializer
+
+    def get_queryset(self):
+        return ProductVolume.objects.filter(shop__shop_code=self.kwargs['shop_code'])
+
+    lookup_url_kwarg = 'shop_code'
+
+
+class ProductSizeListAPIView(ListAPIView):
+    serializer_class = ProductSizeSerializer
+
+    def get_queryset(self):
+        return ProductSize.objects.filter(shop__shop_code=self.kwargs['shop_code'])
+
+    lookup_url_kwarg = 'shop_code'
+
+
+class ProductColorListAPIView(ListAPIView):
+    serializer_class = ProductColorSerializer
+
+    def get_queryset(self):
+        return ProductColor.objects.filter(shop__shop_code=self.kwargs['shop_code'])
+
+    lookup_url_kwarg = 'shop_code'
+
+
+class ProductTasteListAPIView(ListAPIView):
+    serializer_class = ProductTasteSerializer
+
+    def get_queryset(self):
+        return ProductTaste.objects.filter(shop__shop_code=self.kwargs['shop_code'])
+
+    lookup_url_kwarg = 'shop_code'
+
+
+class ProductCategoryListAPIView(ListAPIView):
+    serializer_class = ProductCategorySerializer
+
+    def get_queryset(self):
+        return ProductCategory.objects.filter(shop__shop_code=self.kwargs['shop_code'])
+
+    lookup_url_kwarg = 'shop_code'
+
+
 class ProductListAPIView(ListAPIView):
-    serializer_class = ProductSerializer
+    serializer_class = ProductGetSerializer
 
     def get_queryset(self):
         shop_code = self.kwargs.get('shop_code')  # ✅ To‘g‘ri nom
         return Product.objects.filter(shop__shop_code=shop_code, shop__is_active=True)
 
 
-class ProductDetailView(RetrieveAPIView):
+class ProductCreateAPIView(CreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+
+
+class ProductDetailView(RetrieveAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductGetSerializer
     lookup_field = 'pk'
 
 
 class CreateBasketAPIView(APIView):
     def post(self, request, *args, **kwargs):
-        user = request.user
+        user = request.data.get('telegram_id')
         product_id = request.data.get('product_id')
         quantity = request.data.get('quantity', 1)
 
@@ -39,6 +116,10 @@ class CreateBasketAPIView(APIView):
             product = Product.objects.get(pk=product_id, shop__is_active=True)
         except Exception as e:
             return Response({"detail": "Product not found or inactive.", "error": e}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            user = BotUser.objects.get(telegram_id=user)
+        except Exception as e:
+            return Response({"detail": "User not found.", "error": e}, status=status.HTTP_404_NOT_FOUND)
 
         basket_item, created = Basket.objects.get_or_create(
             user_id=user.id,
@@ -53,26 +134,25 @@ class CreateBasketAPIView(APIView):
         return Response({"basket_id": basket_item.id}, status=status.HTTP_201_CREATED)
 
 
-class DeleteBasketAPIView(APIView):
-    def post(self, request, *args, **kwargs):
-        user = request.user
-        basket_id = request.data.get('basket_id')
-        quantity = 1
+class BasketListAPIView(ListAPIView):
+    serializer_class = ProductGetSerializer
+    queryset = Basket.objects.all()
 
-        if not basket_id:
-            return Response({"detail": "Basket ID is required."}, status=status.HTTP_400_BAD_REQUEST)
-        if not isinstance(quantity, int) or quantity <= 0:
-            return Response({"detail": "Quantity must be a positive integer."}, status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request, shop_code, telegram_id):
+        qs = Basket.objects.filter(shop__shop_code=shop_code, user__telegram_id=telegram_id).select_related('product')
+        ls = list()
+        for b in qs:
+            ls.append(ProductGetSerializer(b).data)
+        return Response(ls, status=status.HTTP_200_OK)
+
+
+class DeleteBasketAPIView(APIView):
+    def delete(self, request, *args, **kwargs):
         try:
-            basket_item = Basket.objects.get(pk=basket_id, user=user)
+            basket_item = Basket.objects.get(id=self.kwargs['pk'])
+            basket_item.delete()
         except Basket.DoesNotExist:
             return Response({"detail": "Basket item not found."}, status=status.HTTP_404_NOT_FOUND)
-
-        if basket_item.quantity > quantity:
-            basket_item.quantity -= quantity
-            basket_item.save()
-        else:
-            basket_item.delete()
         return Response({"detail": "Basket item deleted."}, status=status.HTTP_204_NO_CONTENT)
 
 
@@ -95,24 +175,33 @@ class FavoriteProductAPIView(APIView):
             return Response({"detail": "Product added to favorites."}, status=status.HTTP_201_CREATED)
         return Response({"detail": "Product is already in favorites."}, status=status.HTTP_200_OK)
 
+
+class FavoriteListAPIView(ListAPIView):
+    serializer_class = ProductGetSerializer
+    queryset = FavoriteProduct.objects.all()
+
+    def get(self, request, shop_code, telegram_id):
+        qs = FavoriteProduct.objects.filter(user__telegram_id=telegram_id, shop__shop_code=shop_code).select_related(
+            'product')
+        ls = list()
+        for i in qs:
+            ls.append(ProductGetSerializer(i.product).data)
+        return Response(ls, status=status.HTTP_200_OK)
+
+
+class FavoriteProductDeleteAPIView(APIView):
     def delete(self, request, *args, **kwargs):
-        user = request.user
-        product_id = request.data.get('product_id')
-
-        if not product_id:
-            return Response({"detail": "Product ID is required."}, status=status.HTTP_400_BAD_REQUEST)
-
         try:
-            favorite = FavoriteProduct.objects.get(user=user, product_id=product_id)
+            favorite = FavoriteProduct.objects.get(id=self.kwargs['pk'])
             favorite.delete()
             return Response({"detail": "Product removed from favorites."}, status=status.HTTP_204_NO_CONTENT)
         except FavoriteProduct.DoesNotExist:
             return Response({"detail": "Product not found in favorites."}, status=status.HTTP_404_NOT_FOUND)
 
 
-def send_telegram_order_message(order):
+def send_telegram_order_message(shop, order):
     bot_token = settings.BOT_B_TOKEN
-    chat_id = order.shop.telegram_group  # shop orqali aniqlaysiz
+    chat_id = shop.telegram_group  # shop orqali aniqlaysiz
 
     text = (
         f"🛍 Yangi buyurtma!\n"
@@ -144,12 +233,13 @@ class CreateOrderAPIView(APIView):
             {"product_id": 1, "quantity": 2},
             {"product_id": 2, "quantity": 1}
         ],
-        "address_id": 1
+        "address_id": 1,
+        "telegram_id": 1
     }
     """
 
     def post(self, request, *args, **kwargs):
-        user = request.user
+        user = request.data.get('telegram_id')
         items = request.data.get('items')  # List of items with product_id and quantity
         address_id = request.data.get('address_id')
 
@@ -163,9 +253,12 @@ class CreateOrderAPIView(APIView):
             address = UserAddress.objects.get(pk=address_id, user=user)
         except UserAddress.DoesNotExist:
             return Response({"detail": "Address not found."}, status=status.HTTP_404_NOT_FOUND)
-
+        try:
+            user = BotUser.objects.get(telegram_id=user)
+        except BotUser.DoesNotExist:
+            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
         order = Order.objects.create(user=user, address=address, total_price=0)
-
+        shop = None
         total_price = 0
         for item in items:
             product_id = item.get('product_id')
@@ -177,6 +270,7 @@ class CreateOrderAPIView(APIView):
 
             try:
                 product = Product.objects.get(pk=product_id, shop__is_active=True)
+                shop = product.shop
             except Product.DoesNotExist:
                 return Response({"detail": f"Product with ID {product_id} not found or inactive."},
                                 status=status.HTTP_404_NOT_FOUND)
@@ -194,9 +288,8 @@ class CreateOrderAPIView(APIView):
 
         # ✅ TELEGRAM XABAR YUBORILADI:
         try:
-            send_telegram_order_message(order)
+            send_telegram_order_message(shop, order)
         except Exception as e:
             print(f"Telegramga xabar yuborishda xatolik: {e}")
-
 
         return Response({"order_id": order.id, "total_price": order.total_price}, status=status.HTTP_201_CREATED)
