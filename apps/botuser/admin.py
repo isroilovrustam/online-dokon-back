@@ -33,7 +33,7 @@ class UserAddressAdmin(admin.ModelAdmin):
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 0
-    readonly_fields = ('product', 'quantity', 'price')
+    readonly_fields = ('product_variant', 'quantity', 'price')
 
 
 @admin.register(Order)
@@ -49,9 +49,8 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ('order', 'product', 'quantity', 'price')
-    search_fields = ('product__title',)
-    autocomplete_fields = ('order', 'product')
+    list_display = ('order', 'product_variant', 'quantity', 'price')
+    autocomplete_fields = ('order', 'product_variant')
 
 
 
@@ -60,6 +59,6 @@ class OrderItemAdmin(admin.ModelAdmin):
 @admin.register(FavoriteProduct)
 class FavoriteProductAdmin(admin.ModelAdmin):
     list_display = ('user', 'product', 'added_at')
-    search_fields = ('user__phone_number', 'product__title')
+    search_fields = ('user__phone_number', )
     autocomplete_fields = ('user', 'product')
     ordering = ('-added_at',)

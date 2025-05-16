@@ -57,3 +57,10 @@ class SetActiveShopSerializer(serializers.Serializer):
         user.active_shop = shop
         user.save(update_fields=["active_shop"])
         return user
+
+
+class ReklamaSerializer(serializers.Serializer):
+    image = serializers.ImageField()
+    link = serializers.CharField(allow_null=True, required=False)
+    product_id = serializers.IntegerField(allow_null=True, required=False)
+

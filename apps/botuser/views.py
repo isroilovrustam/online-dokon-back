@@ -1,8 +1,8 @@
 from rest_framework import status, permissions, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import BotUser, UserAddress
-from .serializers import BotUserSerializer, SetActiveShopSerializer, UserAddressSerializer
+from .models import BotUser, UserAddress, ReklamaBotUser, ReklamaAdmin
+from .serializers import BotUserSerializer, SetActiveShopSerializer, ReklamaSerializer
 
 
 class BotUserRegisterView(APIView):
@@ -77,7 +77,6 @@ class SetActiveShopAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class AddressDetailView(APIView):
     def delete(self, request, *args, **kwargs):
         obj = UserAddress.objects.filter(id=self.kwargs.get('pk')).first()
@@ -87,3 +86,18 @@ class AddressDetailView(APIView):
         else:
             return Response({"detail": "Address not found."}, status=status.HTTP_404_NOT_FOUND)
 
+
+class ReklamaListView(generics.ListAPIView):
+    serializer_class = ReklamaSerializer
+
+    def get(self, request, *args, **kwargs):
+        qs = ReklamaBotUser.objects.filter(shop__shop_code=self.kwargs.get('shop_code'))
+        ls = list()
+        for i in qs:
+            ls.append(ReklamaSerializer(i).data)
+        qs = ReklamaAdmin.objects.all()
+        for i in qs:
+            ls.append(ReklamaSerializer(i).data)
+        return Response(ls)
+
+    lookup_url_kwarg = "shop_code"

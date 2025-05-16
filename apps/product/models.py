@@ -14,7 +14,7 @@ class ProductCategory(models.Model):
 
 class ProductColor(models.Model):
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='colors')
-    color = models.CharField(max_length=100, unique=True)
+    color = models.CharField(max_length=100)
 
     def __str__(self):
         return self.color
@@ -22,7 +22,7 @@ class ProductColor(models.Model):
 
 class ProductSize(models.Model):
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='sizes')
-    size = models.CharField(max_length=100, unique=True)
+    size = models.CharField(max_length=100)
 
     def __str__(self):
         return self.size
@@ -30,7 +30,7 @@ class ProductSize(models.Model):
 
 class ProductTaste(models.Model):
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='tastes')
-    taste = models.CharField(max_length=100, unique=True)
+    taste = models.CharField(max_length=100)
 
     def __str__(self):
         return self.taste
@@ -38,7 +38,7 @@ class ProductTaste(models.Model):
 
 class ProductVolume(models.Model):
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='volumes')
-    volume = models.CharField(max_length=100, unique=True)
+    volume = models.CharField(max_length=100)
 
     def __str__(self):
         return self.volume
@@ -72,8 +72,8 @@ class ProductVariant(models.Model):
     volume = models.ForeignKey(ProductVolume, on_delete=models.CASCADE, null=True, blank=True)
     taste = models.ForeignKey(ProductTaste, on_delete=models.CASCADE, null=True, blank=True)
 
-    price = models.DecimalField(max_digits=30, decimal_places=2, verbose_name="Asl narx (so'm)")
-    discount_price = models.DecimalField(max_digits=30, decimal_places=2, blank=True, null=True,
+    price = models.CharField(max_length=30, verbose_name="Asl narx (so'm)")
+    discount_price = models.CharField(max_length=30, blank=True, null=True,
                                          verbose_name="Chegirma narxi (so'm)")
     discount_percent = models.PositiveIntegerField(blank=True, null=True, verbose_name="Chegirma foizi (%)")
     prepayment_amount = models.DecimalField(

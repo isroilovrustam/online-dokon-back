@@ -1,5 +1,5 @@
 from django.db import models
-from product.models import Product
+from product.models import Product, ProductVariant
 from shop.models import Shop
 
 ORDINARY_USER, ADMIN = ("ordinary_user", "admin")
@@ -70,12 +70,13 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')  # Qaysi buyurtmaga tegishli
-    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)  # Mahsulot o‘chirilganda ham saqlanadi
+    product_variant = models.ForeignKey(ProductVariant, on_delete=models.SET_NULL,
+                                        null=True)  # Mahsulot o‘chirilganda ham saqlanadi
     quantity = models.PositiveIntegerField(default=1)  # Miqdori (nechta)
     price = models.DecimalField(max_digits=10, decimal_places=2)  # O‘sha vaqtdagi mahsulot narxi
 
     def __str__(self):
-        return f"{self.product} x {self.quantity}"
+        return f"{self.product_variant} x {self.quantity}"
 
 
 class FavoriteProduct(models.Model):
@@ -84,8 +85,26 @@ class FavoriteProduct(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='favorited_by')  # Qaysi mahsulot
     added_at = models.DateTimeField(auto_now_add=True)  # Qachon yoqtirilgani
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='favorited_by')
+
     class Meta:
         unique_together = ('user', 'product')  # Har bir foydalanuvchi mahsulotni faqat 1 marta yoqtira oladi
 
     def __str__(self):
         return f"{self.user.phone_number} ❤️ {self.product}"
+
+
+class ReklamaAdmin(models.Model):
+    image = models.FileField(upload_to='reklama_admins/')
+    link = models.CharField(max_length=303)
+
+    def __str__(self):
+        return f"{self.user}-reklam"
+
+
+class ReklamaBotUser(models.Model):
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='reklama')
+    image = models.FileField(upload_to='reklama_admins/')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reklama')
+
+    def __str__(self):
+        return f"{self.shop}-{self.product}-reklama"

@@ -35,10 +35,10 @@ class ShopAdmin(CustomAdmin):
 
 @admin.register(Basket)
 class BasketAdmin(admin.ModelAdmin):
-    list_display = ('user', 'shop', 'product', 'quantity', 'created_at')
+    list_display = ('user', 'shop', 'product_variant', 'quantity', 'created_at')
     list_filter = ('shop', 'created_at')
     search_fields = ('user__id', 'shop__shop_name', 'product__product_name')
-    autocomplete_fields = ('user', 'shop', 'product')  # Katta ma'lumot bo‘lsa qulay bo‘ladi
+    autocomplete_fields = ('user', 'shop', 'product_variant')  # Katta ma'lumot bo‘lsa qulay bo‘ladi
     readonly_fields = ('created_at', 'updated_at')
 
 

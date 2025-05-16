@@ -2,9 +2,9 @@
 from django.urls import path
 from .views import ProductListAPIView, ProductDetailView, CreateBasketAPIView, DeleteBasketAPIView, \
     FavoriteProductAPIView, CreateOrderAPIView, ProductSizeCreateAPIView, ProductColorCreateAPIView, \
-    ProductTasteCreateAPIView, ProductVolumeCreateAPIView, ProductTasteListAPIView, ProductColorListAPIView, \
-    ProductSizeListAPIView, ProductVolumeListAPIView, ProductCreateAPIView, ProductCategoryCreateAPIView, \
-    ProductCategoryListAPIView, FavoriteProductDeleteAPIView, FavoriteListAPIView, BasketListAPIView
+    ProductTasteCreateAPIView, ProductVolumeCreateAPIView, ProductTasteListAPIView, ShopColorListAPIView, \
+    ShopSizeListAPIView, ProductVolumeListAPIView, ProductCreateAPIView, ProductCategoryCreateAPIView, \
+    ProductCategoryListAPIView, FavoriteProductDeleteAPIView, FavoriteListAPIView, BasketListAPIView, ProductColorListAPIView, ProductSizeListAPIView
 
 urlpatterns = [
     path('basket/create/', CreateBasketAPIView.as_view(), name='create-basket'),
@@ -21,8 +21,10 @@ urlpatterns = [
     path('volume/create/', ProductVolumeCreateAPIView.as_view(), name='create-volume'),
     path('taste/<str:shop_code>/', ProductTasteListAPIView.as_view(), name='list-taste'),
     path('volume/<str:shop_code>/', ProductVolumeListAPIView.as_view(), name='list-volume'),
-    path('size/<str:shop_code>/', ProductSizeListAPIView.as_view(), name='list-size'),
-    path('color/<str:shop_code>/', ProductColorListAPIView.as_view(), name='list-color'),
+    path('size/<str:shop_code>/', ShopSizeListAPIView.as_view(), name='list-size'),
+    path('sizes/<int:product_id>/', ProductSizeListAPIView.as_view(), name='list-size'),
+    path('color/<str:shop_code>/', ShopColorListAPIView.as_view(), name='list-color'),
+    path('colors/<int:product_id>/', ProductColorListAPIView.as_view(), name='list-color'),
     path('category/<str:shop_code>/', ProductCategoryListAPIView.as_view(), name='list-category'),
     path('<str:shop_code>/products/', ProductListAPIView.as_view(), name='shop-products'),
     path('<int:pk>/detail/', ProductDetailView.as_view(), name='product-detail'),  # Yoki <str:shop_code>

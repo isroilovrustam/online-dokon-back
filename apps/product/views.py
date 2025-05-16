@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import status
 from botuser.models import BotUser
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView
@@ -5,9 +6,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 import requests
 from config import settings
-from .models import Product, ProductColor, ProductTaste, ProductVolume, ProductSize, ProductCategory
+from .models import Product, ProductColor, ProductTaste, ProductVolume, ProductSize, ProductCategory, ProductVariant
 from .serializers import ProductSerializer, ProductSizeSerializer, ProductVolumeSerializer, ProductColorSerializer, \
-    ProductTasteSerializer, ProductCategorySerializer, ProductGetSerializer
+    ProductTasteSerializer, ProductCategorySerializer, ProductGetSerializer, ProductVariantSerializer
 from shop.models import Basket
 from botuser.models import FavoriteProduct, UserAddress, Order, OrderItem
 
@@ -46,7 +47,7 @@ class ProductVolumeListAPIView(ListAPIView):
     lookup_url_kwarg = 'shop_code'
 
 
-class ProductSizeListAPIView(ListAPIView):
+class ShopSizeListAPIView(ListAPIView):
     serializer_class = ProductSizeSerializer
 
     def get_queryset(self):
@@ -55,13 +56,46 @@ class ProductSizeListAPIView(ListAPIView):
     lookup_url_kwarg = 'shop_code'
 
 
-class ProductColorListAPIView(ListAPIView):
+class ProductSizeListAPIView(ListAPIView):
+    serializer_class = ProductSizeSerializer
+    queryset = ProductSize.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        ls = list()
+        color_id = self.request.GET.get('color_id')
+        qs = ProductVariant.objects.filter(product_id=self.kwargs['product_id']).select_related('size').distinct(
+            'size')
+        if color_id:
+            qs = qs.filter(color_id=color_id)
+        for q in qs:
+            ls.append(ProductSizeSerializer(q.size).data)
+        return Response(ls)
+
+    lookup_url_kwarg = 'product_id'
+
+
+class ShopColorListAPIView(ListAPIView):
     serializer_class = ProductColorSerializer
 
     def get_queryset(self):
         return ProductColor.objects.filter(shop__shop_code=self.kwargs['shop_code'])
 
     lookup_url_kwarg = 'shop_code'
+
+
+class ProductColorListAPIView(ListAPIView):
+    serializer_class = ProductColorSerializer
+    queryset = ProductColor.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        ls = list()
+        qs = ProductVariant.objects.filter(product_id=self.kwargs['product_id']).select_related('color').distinct(
+            'color')
+        for q in qs:
+            ls.append(ProductColorSerializer(q.color).data)
+        return Response(ls)
+
+    lookup_url_kwarg = 'product_id'
 
 
 class ProductTasteListAPIView(ListAPIView):
@@ -87,7 +121,14 @@ class ProductListAPIView(ListAPIView):
 
     def get_queryset(self):
         shop_code = self.kwargs.get('shop_code')  # ✅ To‘g‘ri nom
-        return Product.objects.filter(shop__shop_code=shop_code, shop__is_active=True)
+        qs = Product.objects.filter(shop__shop_code=shop_code, shop__is_active=True)
+        name = self.request.GET.get('name')
+        cat = self.request.GET.get('cat')
+        if cat:
+            qs = qs.filter(category_id=cat)
+        if name:
+            qs = qs.filter(Q(product_name_uz__icontains=name) | Q(product_name_ru__icontains=name))
+        return qs
 
 
 class ProductCreateAPIView(CreateAPIView):
@@ -104,16 +145,16 @@ class ProductDetailView(RetrieveAPIView):
 class CreateBasketAPIView(APIView):
     def post(self, request, *args, **kwargs):
         user = request.data.get('telegram_id')
-        product_id = request.data.get('product_id')
+        product_variant_id = request.data.get('product_variant_id')
         quantity = request.data.get('quantity', 1)
 
-        if not product_id:
+        if not product_variant_id:
             return Response({"detail": "Product ID is required."}, status=status.HTTP_400_BAD_REQUEST)
         if not isinstance(quantity, int) or quantity <= 0:
             return Response({"detail": "Quantity must be a positive integer."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            product = Product.objects.get(pk=product_id, shop__is_active=True)
+            product_variant = ProductVariant.objects.get(pk=product_variant_id, shop__is_active=True)
         except Exception as e:
             return Response({"detail": "Product not found or inactive.", "error": e}, status=status.HTTP_404_NOT_FOUND)
         try:
@@ -123,8 +164,8 @@ class CreateBasketAPIView(APIView):
 
         basket_item, created = Basket.objects.get_or_create(
             user_id=user.id,
-            product=product,
-            shop=product.shop,
+            product_variant=product_variant,
+            shop=product_variant.product.shop,
             defaults={'quantity': quantity}
         )
         if not created:
@@ -135,14 +176,14 @@ class CreateBasketAPIView(APIView):
 
 
 class BasketListAPIView(ListAPIView):
-    serializer_class = ProductGetSerializer
+    serializer_class = ProductVariantSerializer
     queryset = Basket.objects.all()
 
     def get(self, request, shop_code, telegram_id):
-        qs = Basket.objects.filter(shop__shop_code=shop_code, user__telegram_id=telegram_id).select_related('product')
+        qs = Basket.objects.filter(shop__shop_code=shop_code, user__telegram_id=telegram_id).select_related('product_variant')
         ls = list()
         for b in qs:
-            ls.append(ProductGetSerializer(b).data)
+            ls.append(ProductVariantSerializer(b.product_variant).data)
         return Response(ls, status=status.HTTP_200_OK)
 
 

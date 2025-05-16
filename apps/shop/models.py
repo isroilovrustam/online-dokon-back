@@ -58,7 +58,7 @@ class ShopAddress(models.Model):
 class Basket(models.Model):
     user = models.ForeignKey('botuser.BotUser', on_delete=models.CASCADE)
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
-    product = models.ForeignKey('product.Product', on_delete=models.CASCADE)
+    product_variant = models.ForeignKey('product.ProductVariant', on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
 
     created_at = models.DateTimeField(auto_now_add=True)
