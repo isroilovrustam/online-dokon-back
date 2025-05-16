@@ -16,7 +16,12 @@ class BotUserSerializer(serializers.ModelSerializer):
     active_shop = serializers.SerializerMethodField()
 
     def get_active_shop(self, obj):
-        return obj.active_shop.shop_code
+        if obj.active_shop is not None:
+            return {
+                "shop_code": obj.active_shop.shop_code,
+                "shop_name": obj.active_shop.shop_name
+            }
+        return None
 
     class Meta:
         model = BotUser

@@ -15,6 +15,8 @@ class ShopGetAddressSerializer(serializers.ModelSerializer):
         fields = ['id', 'full_address']
 
 
+
+
 class ShopSerializer(serializers.ModelSerializer):
     addresses = ShopAddressSerializer(many=True, required=False)  # Shop.related_name = 'addresses' ishlatilgan
 

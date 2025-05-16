@@ -11,9 +11,10 @@ sys.path.append(os.path.join(BASE_DIR, 'apps'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-kdmp3()(h15-&*$@*b(i98ddo!m#(3u(s*rc2mtxf@=195b_zq'
-
+CSRF_TRUSTED_ORIGINS = ['https://market.abruis.uz']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+CORS_ALLOW_ALL_ORIGINS = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -31,6 +32,7 @@ INSTALLED_APPS = [
     # packages
     'rest_framework',
     'drf_yasg',
+    'corsheaders',
 
     # local apps
     'botuser',
@@ -41,6 +43,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -72,12 +76,8 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'online_dokon',
-        'USER': 'db_user',
-        'PASSWORD': '20021202',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
