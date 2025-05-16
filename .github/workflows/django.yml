@@ -20,7 +20,7 @@ jobs:
 
     - name: Build Docker image
       run: | 
-        echo ${{ vars.DOTENV }} > .env
+        echo ${{ secrets.DOTENV }} > .env
         cat .env
         docker build -t ${{ secrets.DOCKER_USERNAME }}/market-back .
 
