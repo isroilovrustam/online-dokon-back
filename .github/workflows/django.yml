@@ -20,7 +20,7 @@ jobs:
 
     - name: Build Docker image
       run: | 
-        cat ${{ secrets.DOTENV }} > .env
+        cat ${{ vars.DOTENV }} > .env
         docker build -t ${{ secrets.DOCKER_USERNAME }}/market-back .
 
     - name: Push Docker image
