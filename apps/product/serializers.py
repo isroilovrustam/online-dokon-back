@@ -7,7 +7,7 @@ from .models import ProductImage, ProductVariant, Product, ProductVolume, Produc
 class ProductCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductCategory
-        fields = '__all__'
+        fields = ["id", "name", "image"]
 
 
 class ProductColorSerializer(serializers.ModelSerializer):

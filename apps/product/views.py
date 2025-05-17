@@ -111,7 +111,7 @@ class ProductCategoryListAPIView(ListAPIView):
     serializer_class = ProductCategorySerializer
 
     def get_queryset(self):
-        return ProductCategory.objects.filter(shop__shop_code=self.kwargs['shop_code']).order_by('-created_at')
+        return ProductCategory.objects.filter(shop__shop_code=self.kwargs['shop_code'])
 
     lookup_url_kwarg = 'shop_code'
 
