@@ -19,6 +19,9 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 ALLOWED_HOSTS = ["*"]
 
+SWAGGER_SETTINGS = {
+    'DEFAULT_API_URL': 'https://market.abruis.uz',
+}
 # Application definition
 
 INSTALLED_APPS = [
@@ -111,7 +114,6 @@ LANGUAGES = (
     ("ru", "Russian"),
     ("uz", "Uzbek"),
 )
-
 
 MODELTRANSLATION_DEFAULT_LANGUAGE = "ru"
 MODELTRANSLATION_LANGUAGES = ("ru", "uz")
