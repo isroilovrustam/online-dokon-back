@@ -19,7 +19,8 @@ class BotUserSerializer(serializers.ModelSerializer):
         if obj.active_shop is not None:
             return {
                 "shop_code": obj.active_shop.shop_code,
-                "shop_name": obj.active_shop.shop_name
+                "shop_name": obj.active_shop.shop_name,
+                "is_active": obj.active_shop.is_active,
             }
         return None
 
