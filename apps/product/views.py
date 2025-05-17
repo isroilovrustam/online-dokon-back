@@ -111,7 +111,7 @@ class ProductCategoryListAPIView(ListAPIView):
     serializer_class = ProductCategorySerializer
 
     def get_queryset(self):
-        return ProductCategory.objects.filter(shop__shop_code=self.kwargs['shop_code'])
+        return ProductCategory.objects.filter(shop__shop_code=self.kwargs['shop_code']).order_by('-created_at')
 
     lookup_url_kwarg = 'shop_code'
 
@@ -121,7 +121,7 @@ class ProductListAPIView(ListAPIView):
 
     def get_queryset(self):
         shop_code = self.kwargs.get('shop_code')  # ✅ To‘g‘ri nom
-        qs = Product.objects.filter(shop__shop_code=shop_code, shop__is_active=True)
+        qs = Product.objects.filter(shop__shop_code=shop_code, shop__is_active=True).order_by('-created_at')
         name = self.request.GET.get('name')
         cat = self.request.GET.get('cat')
         if cat:

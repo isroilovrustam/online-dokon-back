@@ -2,7 +2,7 @@ from rest_framework import status, permissions, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import BotUser, UserAddress, ReklamaBotUser, ReklamaAdmin
-from .serializers import BotUserSerializer, SetActiveShopSerializer, ReklamaSerializer
+from .serializers import BotUserSerializer, SetActiveShopSerializer, ReklamaSerializer, UserAddressSerializer
 
 
 class BotUserRegisterView(APIView):
@@ -85,6 +85,19 @@ class AddressDetailView(APIView):
             return Response({"detail": "Address deleted."}, status=status.HTTP_200_OK)
         else:
             return Response({"detail": "Address not found."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class AddressCreateByTelegramView(APIView):
+    def post(self, request, *args, **kwargs):
+        telegram_id = kwargs.get("telegram_id")
+        user = BotUser.objects.filter(telegram_id=telegram_id).first()
+        if not user:
+            return Response({"detail": "User with this Telegram ID not found."}, status=status.HTTP_404_NOT_FOUND)
+        serializer = UserAddressSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=user)  # Aynan shu userga bog‘laymiz
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ReklamaListView(generics.ListAPIView):

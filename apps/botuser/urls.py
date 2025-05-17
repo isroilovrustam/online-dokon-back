@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import BotUserRegisterView, BotUserDetailView, SetActiveShopAPIView, AddressDetailView, ReklamaListView
+from .views import BotUserRegisterView, BotUserDetailView, SetActiveShopAPIView, AddressDetailView, ReklamaListView, \
+    AddressCreateByTelegramView
 
 urlpatterns = [
     # registration
@@ -7,5 +8,6 @@ urlpatterns = [
     path('<int:telegram_id>/', BotUserDetailView.as_view(), name='botuser-detail'),
     path("set-active-shop/", SetActiveShopAPIView.as_view(), name="set-active-shop"),
     path("address/delete/<int:pk>", AddressDetailView.as_view(), name="delete-address"),
+    path("address/create/<int:telegram_id>", AddressCreateByTelegramView.as_view(), name="create-address-by-telegram"),
     path("reklama/<str:shop_code>", ReklamaListView.as_view(), name="reklama-list"),
 ]
