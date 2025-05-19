@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     BotUser, UserAddress,
-    Order, OrderItem, FavoriteProduct
+    Order, OrderItem, FavoriteProduct, ReklamaAdmin, ReklamaBotUser
 )
 
 
@@ -62,3 +62,17 @@ class FavoriteProductAdmin(admin.ModelAdmin):
     search_fields = ('user__phone_number', )
     autocomplete_fields = ('user', 'product')
     ordering = ('-added_at',)
+
+
+# ReklamaAdmin modelini admin panelga qo‘shish
+@admin.register(ReklamaAdmin)
+class ReklamaAdminAdmin(admin.ModelAdmin):
+    list_display = ('id', 'image', 'link')  # Ko‘rinish qismi
+    list_filter = ('link',)  # Filtrlash uchun
+    search_fields = ('link',)  # Izlash uchun
+
+# ReklamaBotUser modelini admin panelga qo‘shish
+@admin.register(ReklamaBotUser)
+class ReklamaBotUserAdmin(admin.ModelAdmin):
+    list_display = ('id', 'shop', 'image', 'product')  # Ko‘rinish qismi
+    list_filter = ('shop', 'product')  # Filtrlash uchun

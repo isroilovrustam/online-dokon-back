@@ -144,30 +144,37 @@ class ProductDetailView(RetrieveAPIView):
 
 class CreateBasketAPIView(APIView):
     def post(self, request, *args, **kwargs):
-        user = request.data.get('telegram_id')
+        telegram_id = request.data.get('telegram_id')
         product_variant_id = request.data.get('product_variant_id')
         quantity = request.data.get('quantity', 1)
 
+        try:
+            quantity = int(quantity)
+            if quantity <= 0:
+                raise ValueError
+        except (ValueError, TypeError):
+            return Response({"detail": "Quantity must be a positive integer."}, status=status.HTTP_400_BAD_REQUEST)
+
         if not product_variant_id:
             return Response({"detail": "Product ID is required."}, status=status.HTTP_400_BAD_REQUEST)
-        if not isinstance(quantity, int) or quantity <= 0:
-            return Response({"detail": "Quantity must be a positive integer."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             product_variant = ProductVariant.objects.get(pk=product_variant_id, shop__is_active=True)
-        except Exception as e:
-            return Response({"detail": "Product not found or inactive.", "error": e}, status=status.HTTP_404_NOT_FOUND)
+        except ProductVariant.DoesNotExist:
+            return Response({"detail": "Product not found or inactive."}, status=status.HTTP_404_NOT_FOUND)
+
         try:
-            user = BotUser.objects.get(telegram_id=user)
-        except Exception as e:
-            return Response({"detail": "User not found.", "error": e}, status=status.HTTP_404_NOT_FOUND)
+            user = BotUser.objects.get(telegram_id=telegram_id)
+        except BotUser.DoesNotExist:
+            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
         basket_item, created = Basket.objects.get_or_create(
-            user_id=user.id,
+            user=user,
             product_variant=product_variant,
             shop=product_variant.product.shop,
             defaults={'quantity': quantity}
         )
+
         if not created:
             basket_item.quantity += quantity
             basket_item.save()
@@ -180,7 +187,8 @@ class BasketListAPIView(ListAPIView):
     queryset = Basket.objects.all()
 
     def get(self, request, shop_code, telegram_id):
-        qs = Basket.objects.filter(shop__shop_code=shop_code, user__telegram_id=telegram_id).select_related('product_variant')
+        qs = Basket.objects.filter(shop__shop_code=shop_code, user__telegram_id=telegram_id).select_related(
+            'product_variant')
         ls = list()
         for b in qs:
             ls.append(ProductVariantSerializer(b.product_variant).data)
