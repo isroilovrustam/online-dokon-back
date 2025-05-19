@@ -114,12 +114,14 @@ class ProductGetSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if request:
             telegram_id = request.query_params.get("telegram_id")
-            try:
-                basket = Basket.objects.get(user__telegram_id=telegram_id, product_variant=obj)
-                return basket.quantity
-            except Basket.DoesNotExist:
-                return 0
-        return None
+            if telegram_id:
+                variants = obj.variants.all()
+                total_quantity = Basket.objects.filter(
+                    user__telegram_id=telegram_id,
+                    product_variant__in=variants
+                ).aggregate(total=sum('quantity'))['total']
+                return total_quantity or 0
+        return 0
 
     class Meta:
         model = Product
