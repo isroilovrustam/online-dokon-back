@@ -122,6 +122,7 @@ class ProductGetSerializer(serializers.ModelSerializer):
                     product_variant__in=variants
                 ).aggregate(total=Sum('quantity'))['total'] or 0
 
+                return total_quantity
         return 0
 
     class Meta:
