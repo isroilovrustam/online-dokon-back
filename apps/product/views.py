@@ -198,7 +198,6 @@ class BasketListAPIView(ListAPIView):
         return Response(ls, status=status.HTTP_200_OK)
 
 
-
 class DeleteBasketAPIView(APIView):
     def delete(self, request, *args, **kwargs):
         try:
@@ -210,26 +209,32 @@ class DeleteBasketAPIView(APIView):
 
 
 class FavoriteProductAPIView(APIView):
-    permission_classes = [AllowAny, ]
-
     def post(self, request, *args, **kwargs):
-        user = request.user
         product_id = request.data.get('product_id')
+        telegram_id = request.data.get('telegram_id')
 
         if not product_id:
             return Response({"detail": "Product ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not telegram_id:
+            return Response({"detail": "Telegram ID is required."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             product = Product.objects.get(pk=product_id)
         except Product.DoesNotExist:
             return Response({"detail": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
 
+        try:
+            user = BotUser.objects.get(telegram_id=telegram_id)
+        except BotUser.DoesNotExist:
+            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
         favorite, created = FavoriteProduct.objects.get_or_create(user=user, product=product)
+
         if created:
             return Response({"detail": "Product added to favorites."}, status=status.HTTP_201_CREATED)
+
         return Response({"detail": "Product is already in favorites."}, status=status.HTTP_200_OK)
-
-
 
 
 class FavoriteListAPIView(ListAPIView):
