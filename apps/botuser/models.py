@@ -84,7 +84,7 @@ class FavoriteProduct(models.Model):
                              related_name='favorite_products')  # Qaysi foydalanuvchiga tegishli
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='favorited_by')  # Qaysi mahsulot
     added_at = models.DateTimeField(auto_now_add=True)  # Qachon yoqtirilgani
-    shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='favorited_by')
+    # shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='favorited_by')
 
     class Meta:
         unique_together = ('user', 'product')  # Har bir foydalanuvchi mahsulotni faqat 1 marta yoqtira oladi
