@@ -202,22 +202,24 @@ class CreateBasketAPIView(APIView):
 
         # return Response({"basket_id": basket_item.id}, status=status.HTTP_201_CREATED)
 
-
 class BasketListAPIView(ListAPIView):
     serializer_class = ProductVariantSerializer
     queryset = Basket.objects.all()
 
-    def get(self, request, shop_code, telegram_id):
-        if not shop_code and not telegram_id:
-            return Response("gg")
-        print(shop_code, telegram_id)
-        qs = Basket.objects.filter(shop__shop_code=shop_code, user__telegram_id=telegram_id).select_related(
-            'product_variant')
-        ls = list()
-        for b in qs:
-            print(ls)
-            ls.append(ProductVariantSerializer(b.product_variant).data)
-        return Response(ls, status=status.HTTP_200_OK)
+    def get(self, request, shop_code):
+        telegram_id = request.query_params.get('telegram_id')
+        if not shop_code or not telegram_id:
+            return Response({"detail": "shop_code and telegram_id are required."}, status=400)
+
+        basket_items = Basket.objects.filter(
+            shop__shop_code=shop_code,
+            user__telegram_id=telegram_id
+        ).select_related('product_variant', 'product_variant__product')
+
+        product_variants = [b.product_variant for b in basket_items]
+
+        serializer = self.serializer_class(product_variants, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class DeleteBasketAPIView(APIView):

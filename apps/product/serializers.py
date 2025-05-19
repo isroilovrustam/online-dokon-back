@@ -1,4 +1,6 @@
 from rest_framework import serializers
+
+from shop.models import Basket
 from shop.serializers import ShopSerializer
 from .models import ProductImage, ProductVariant, Product, ProductVolume, ProductSize, ProductTaste, ProductColor, \
     ProductCategory
@@ -39,27 +41,40 @@ class ProductImageSerializer(serializers.ModelSerializer):
         model = ProductImage
         fields = ['id', 'image']
 
-
 class ProductVariantSerializer(serializers.ModelSerializer):
     color = serializers.StringRelatedField()
     size = serializers.StringRelatedField()
     volume = serializers.StringRelatedField()
     taste = serializers.StringRelatedField()
+    quantity = serializers.SerializerMethodField()
     images = serializers.SerializerMethodField()
+    product_name = serializers.SerializerMethodField()
+
+    def get_product_name(self, obj):
+        return obj.product.product_name if obj.product else None
 
     def get_images(self, obj):
-        img = ProductImage.objects.get(pk=obj.id)
-        return img.image.url if img else None
+        images = obj.product.images.all()  # assuming a reverse relation: `related_name='images'` in ProductImage
+        return [image.image.url for image in images]
+
+    def get_quantity(self, obj):
+        request = self.context.get("request")
+        if request:
+            telegram_id = request.query_params.get("telegram_id")
+            try:
+                basket = Basket.objects.get(user__telegram_id=telegram_id, product_variant=obj)
+                return basket.quantity
+            except Basket.DoesNotExist:
+                return 0
+        return None
 
     class Meta:
         model = ProductVariant
         fields = [
             'id', 'color', 'size', 'volume', 'taste',
             'price', 'discount_price', 'discount_percent', 'prepayment_amount',
-            'stock', 'is_active', 'images'
+            'stock', 'is_active', 'images', 'quantity', 'product_name'
         ]
-
-
 
 
 

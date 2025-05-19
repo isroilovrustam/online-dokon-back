@@ -8,9 +8,7 @@ from .views import ProductListAPIView, ProductDetailView, CreateBasketAPIView, D
 
 urlpatterns = [
     path('basket/create/', CreateBasketAPIView.as_view(), name='create-basket'),
-    path('basket/<str:shop_code>/<int:telegram_id>/', BasketListAPIView.as_view(), name='basket-list'),
-    # path('ketmon/<str:shop_code>/<int:telegram_id>/', BasketListAPIView.as_view(), name='basket-list'),
-
+    path('basket/<str:shop_code>/', BasketListAPIView.as_view(), name='basket-list'),
     path('basket/<int:pk>/delete/', DeleteBasketAPIView.as_view(), name='delete-basket'),
     path('favorites/', FavoriteProductAPIView.as_view(), name='favorite-product'),
     path('favorites/<str:shop_code>/<int:telegram_id>/', FavoriteListAPIView.as_view(), name='favorite-list'),
