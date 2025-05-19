@@ -1,3 +1,4 @@
+from django.db.models import Sum
 from rest_framework import serializers
 
 from shop.models import Basket
@@ -119,8 +120,8 @@ class ProductGetSerializer(serializers.ModelSerializer):
                 total_quantity = Basket.objects.filter(
                     user__telegram_id=telegram_id,
                     product_variant__in=variants
-                ).aggregate(total=sum('quantity'))['total']
-                return total_quantity or 0
+                ).aggregate(total=Sum('quantity'))['total'] or 0
+
         return 0
 
     class Meta:
