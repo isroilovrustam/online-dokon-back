@@ -55,6 +55,9 @@ class ProductVariantSerializer(serializers.ModelSerializer):
         ]
 
 
+
+
+
 class ProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True)
     variants = ProductVariantSerializer(many=True)

@@ -1,5 +1,7 @@
 from django.db.models import Q
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+
 from botuser.models import BotUser
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView
 from rest_framework.response import Response
@@ -11,6 +13,7 @@ from .serializers import ProductSerializer, ProductSizeSerializer, ProductVolume
     ProductTasteSerializer, ProductCategorySerializer, ProductGetSerializer, ProductVariantSerializer
 from shop.models import Basket
 from botuser.models import FavoriteProduct, UserAddress, Order, OrderItem
+from django.shortcuts import get_object_or_404
 
 
 class ProductCategoryCreateAPIView(CreateAPIView):
@@ -194,6 +197,28 @@ class BasketListAPIView(ListAPIView):
             ls.append(ProductVariantSerializer(b.product_variant).data)
         return Response(ls, status=status.HTTP_200_OK)
 
+# class BasketListAPIView(ListAPIView):
+#     serializer_class = ProductVariantSerializer
+#
+#     def get_queryset(self):
+#         shop_code = self.kwargs['shop_code']
+#         telegram_id = self.kwargs['telegram_id']
+#         return Basket.objects.filter(
+#             product_variant__product__shop__shop_code=shop_code,
+#             user__telegram_id=telegram_id
+#         ).select_related(
+#             'product_variant', 'product_variant__product', 'user'
+#         ).prefetch_related('product_variant__product__images')
+#
+#     def get(self, request, *args, **kwargs):
+#         queryset = self.get_queryset()
+#         data = [
+#             self.serializer_class(b.product_variant).data
+#             for b in queryset
+#         ]
+#         return Response(data, status=status.HTTP_200_OK)
+#
+
 
 class DeleteBasketAPIView(APIView):
     def delete(self, request, *args, **kwargs):
@@ -206,6 +231,7 @@ class DeleteBasketAPIView(APIView):
 
 
 class FavoriteProductAPIView(APIView):
+    permission_classes = [IsAuthenticated, ]
 
     def post(self, request, *args, **kwargs):
         user = request.user
@@ -223,6 +249,8 @@ class FavoriteProductAPIView(APIView):
         if created:
             return Response({"detail": "Product added to favorites."}, status=status.HTTP_201_CREATED)
         return Response({"detail": "Product is already in favorites."}, status=status.HTTP_200_OK)
+
+
 
 
 class FavoriteListAPIView(ListAPIView):
