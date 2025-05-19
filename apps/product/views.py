@@ -208,10 +208,14 @@ class BasketListAPIView(ListAPIView):
     queryset = Basket.objects.all()
 
     def get(self, request, shop_code, telegram_id):
+        if not shop_code and not telegram_id:
+            return Response("gg")
+        print(shop_code, telegram_id)
         qs = Basket.objects.filter(shop__shop_code=shop_code, user__telegram_id=telegram_id).select_related(
             'product_variant')
         ls = list()
         for b in qs:
+            print(ls)
             ls.append(ProductVariantSerializer(b.product_variant).data)
         return Response(ls, status=status.HTTP_200_OK)
 

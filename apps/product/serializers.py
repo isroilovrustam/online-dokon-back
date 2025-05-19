@@ -45,7 +45,11 @@ class ProductVariantSerializer(serializers.ModelSerializer):
     size = serializers.StringRelatedField()
     volume = serializers.StringRelatedField()
     taste = serializers.StringRelatedField()
-    images = ProductImageSerializer(many=True, read_only=True)
+    images = serializers.SerializerMethodField()
+
+    def get_images(self, obj):
+        img = ProductImage.objects.get(pk=obj.id)
+        return img.image.url if img else None
 
     class Meta:
         model = ProductVariant
