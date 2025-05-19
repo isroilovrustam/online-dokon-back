@@ -144,6 +144,14 @@ class ProductDetailView(RetrieveAPIView):
     serializer_class = ProductGetSerializer
     lookup_field = 'pk'
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({
+            'request': self.request,
+            'telegram_id': self.request.query_params.get('telegram_id')
+        })
+        return context
+
 
 class CreateBasketAPIView(APIView):
     def post(self, request, *args, **kwargs):
@@ -201,6 +209,7 @@ class CreateBasketAPIView(APIView):
         return Response({"basket_count": basket.quantity})
 
         # return Response({"basket_id": basket_item.id}, status=status.HTTP_201_CREATED)
+
 
 class BasketListAPIView(ListAPIView):
     serializer_class = ProductVariantSerializer

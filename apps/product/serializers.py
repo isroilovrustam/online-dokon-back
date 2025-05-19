@@ -108,10 +108,23 @@ class ProductGetSerializer(serializers.ModelSerializer):
     category = ProductCategorySerializer()
     shop = ShopSerializer()
 
+    quantity = serializers.SerializerMethodField()
+
+    def get_quantity(self, obj):
+        request = self.context.get("request")
+        if request:
+            telegram_id = request.query_params.get("telegram_id")
+            try:
+                basket = Basket.objects.get(user__telegram_id=telegram_id, product_variant=obj)
+                return basket.quantity
+            except Basket.DoesNotExist:
+                return 0
+        return None
+
     class Meta:
         model = Product
         fields = [
             'id', 'shop', 'category', 'product_name',
             'description', 'created_at', 'updated_at',
-            'images', 'variants'
+            'images', 'variants', 'quantity'
         ]
