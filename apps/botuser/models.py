@@ -98,7 +98,7 @@ class ReklamaAdmin(models.Model):
     link = models.CharField(max_length=303)
 
     def __str__(self):
-        return f"{self.user}-reklam"
+        return f"admin-reklam"
 
 
 class ReklamaBotUser(models.Model):
