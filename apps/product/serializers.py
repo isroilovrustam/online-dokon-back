@@ -45,13 +45,14 @@ class ProductVariantSerializer(serializers.ModelSerializer):
     size = serializers.StringRelatedField()
     volume = serializers.StringRelatedField()
     taste = serializers.StringRelatedField()
+    images = ProductImageSerializer(many=True, read_only=True)
 
     class Meta:
         model = ProductVariant
         fields = [
             'id', 'color', 'size', 'volume', 'taste',
             'price', 'discount_price', 'discount_percent', 'prepayment_amount',
-            'stock', 'is_active'
+            'stock', 'is_active', 'images'
         ]
 
 

@@ -171,18 +171,36 @@ class CreateBasketAPIView(APIView):
         except BotUser.DoesNotExist:
             return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        basket_item, created = Basket.objects.get_or_create(
-            user=user,
-            product_variant=product_variant,
-            shop=product_variant.product.shop,
-            defaults={'quantity': quantity}
-        )
+        # basket_item, created = Basket.objects.get_or_create(
+        #     user=user,
+        #     product_variant=product_variant,
+        #     shop=product_variant.product.shop,
+        #     defaults={'quantity': quantity}
+        # )
+        #
+        # if not created:
+        #     basket_item.quantity += quantity
+        #     basket_item.save()
 
-        if not created:
-            basket_item.quantity += quantity
-            basket_item.save()
+        baskets = Basket.objects.filter(user=user, product_variant=product_variant)
 
-        return Response({"basket_id": basket_item.id}, status=status.HTTP_201_CREATED)
+        if baskets.exists():
+            basket = baskets.first()
+            if int(quantity) == 0:
+                basket.delete()
+            else:
+                basket.quantity = quantity
+                basket.save()
+        else:
+            basket = Basket.objects.create(
+                product_variant=product_variant,
+                user=user,
+                quantity=quantity
+            )
+
+        return Response({"basket_count": basket.quantity})
+
+        # return Response({"basket_id": basket_item.id}, status=status.HTTP_201_CREATED)
 
 
 class BasketListAPIView(ListAPIView):
