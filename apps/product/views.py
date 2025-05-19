@@ -159,7 +159,7 @@ class CreateBasketAPIView(APIView):
             return Response({"detail": "Product ID is required."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            product_variant = ProductVariant.objects.get(pk=product_variant_id, shop__is_active=True)
+            product_variant = ProductVariant.objects.get(pk=product_variant_id, product__shop__is_active=True)
         except ProductVariant.DoesNotExist:
             return Response({"detail": "Product not found or inactive."}, status=status.HTTP_404_NOT_FOUND)
 
