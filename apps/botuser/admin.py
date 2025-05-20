@@ -58,7 +58,7 @@ class OrderItemAdmin(admin.ModelAdmin):
 
 @admin.register(FavoriteProduct)
 class FavoriteProductAdmin(admin.ModelAdmin):
-    list_display = ('user', 'product', 'added_at')
+    list_display = ('id', 'user', 'product', 'added_at')
     search_fields = ('user__phone_number', )
     autocomplete_fields = ('user', 'product')
     ordering = ('-added_at',)
