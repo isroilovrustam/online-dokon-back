@@ -4,11 +4,13 @@ from .views import ProductListAPIView, ProductDetailView, CreateBasketAPIView, D
     FavoriteProductAPIView, CreateOrderAPIView, ProductSizeCreateAPIView, ProductColorCreateAPIView, \
     ProductTasteCreateAPIView, ProductVolumeCreateAPIView, ProductTasteListAPIView, ShopColorListAPIView, \
     ShopSizeListAPIView, ProductVolumeListAPIView, ProductCreateAPIView, ProductCategoryCreateAPIView, \
-    ProductCategoryListAPIView, FavoriteProductDeleteAPIView, FavoriteListAPIView, BasketListAPIView, ProductColorListAPIView, ProductSizeListAPIView
+    ProductCategoryListAPIView, FavoriteProductDeleteAPIView, FavoriteListAPIView, BasketListAPIView, \
+    ProductColorListAPIView, ProductSizeListAPIView, UpdateBasketQuantityAPIView
 
 urlpatterns = [
     path('basket/create/', CreateBasketAPIView.as_view(), name='create-basket'),
     path('basket/<str:shop_code>/', BasketListAPIView.as_view(), name='basket-list'),
+    path('basket/update/', UpdateBasketQuantityAPIView.as_view(), name='update-basket'),
     path('basket/<int:pk>/delete/', DeleteBasketAPIView.as_view(), name='delete-basket'),
     path('favorites/', FavoriteProductAPIView.as_view(), name='favorite-product'),
     path('favorites/<str:shop_code>/<int:telegram_id>/', FavoriteListAPIView.as_view(), name='favorite-list'),

@@ -1,6 +1,7 @@
 from django.db.models import Sum
 from rest_framework import serializers
 
+from botuser.models import FavoriteProduct, BotUser
 from shop.models import Basket
 from shop.serializers import ShopSerializer
 from .models import ProductImage, ProductVariant, Product, ProductVolume, ProductSize, ProductTaste, ProductColor, \
@@ -42,6 +43,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
         model = ProductImage
         fields = ['id', 'image']
 
+
 class ProductVariantSerializer(serializers.ModelSerializer):
     color = serializers.StringRelatedField()
     size = serializers.StringRelatedField()
@@ -78,7 +80,6 @@ class ProductVariantSerializer(serializers.ModelSerializer):
         ]
 
 
-
 class ProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True)
     variants = ProductVariantSerializer(many=True)
@@ -108,27 +109,31 @@ class ProductGetSerializer(serializers.ModelSerializer):
     variants = ProductVariantSerializer(many=True)
     category = ProductCategorySerializer()
     shop = ShopSerializer()
-
     quantity = serializers.SerializerMethodField()
+    me_favorite = serializers.SerializerMethodField()
+
 
     def get_quantity(self, obj):
         request = self.context.get("request")
         if request:
             telegram_id = request.query_params.get("telegram_id")
-            if telegram_id:
-                variants = obj.variants.all()
-                total_quantity = Basket.objects.filter(
-                    user__telegram_id=telegram_id,
-                    product_variant__in=variants
-                ).aggregate(total=Sum('quantity'))['total'] or 0
+            try:
+                basket = Basket.objects.get(user__telegram_id=telegram_id, product_variant=obj)
+                return basket.quantity
+            except Basket.DoesNotExist:
+                return 0
+        return None
 
-                return total_quantity
-        return 0
+    def get_me_favorite(self, obj):
+        user = self.context.get('user')
+        if not user:
+            return False
+        return FavoriteProduct.objects.filter(product=obj, user=user).exists()
 
     class Meta:
         model = Product
         fields = [
             'id', 'shop', 'category', 'product_name',
             'description', 'created_at', 'updated_at',
-            'images', 'variants', 'quantity'
+            'images', 'variants', 'quantity', 'me_favorite'
         ]

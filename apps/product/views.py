@@ -1,7 +1,8 @@
 from django.db.models import Q
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
-
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from botuser.models import BotUser
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView
 from rest_framework.response import Response
@@ -122,6 +123,17 @@ class ProductCategoryListAPIView(ListAPIView):
 class ProductListAPIView(ListAPIView):
     serializer_class = ProductGetSerializer
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        telegram_id = self.request.query_params.get("telegram_id")
+        if telegram_id:
+            try:
+                user = BotUser.objects.get(telegram_id=telegram_id)
+                context['user'] = user
+            except BotUser.DoesNotExist:
+                context['user'] = None
+        return context
+
     def get_queryset(self):
         shop_code = self.kwargs.get('shop_code')  # ✅ To‘g‘ri nom
         qs = Product.objects.filter(shop__shop_code=shop_code, shop__is_active=True).order_by('-created_at')
@@ -154,64 +166,123 @@ class ProductDetailView(RetrieveAPIView):
 
 
 class CreateBasketAPIView(APIView):
+    """
+    Foydalanish:
+    {
+      "telegram_id": "123456789",
+      "product_variant_id": 42,
+      "quantity": 3
+    }
+    """
+
     def post(self, request, *args, **kwargs):
         telegram_id = request.data.get('telegram_id')
         product_variant_id = request.data.get('product_variant_id')
         quantity = request.data.get('quantity', 1)
 
+        # 1. Tekshiruvlar
         try:
             quantity = int(quantity)
             if quantity <= 0:
-                raise ValueError
+                return Response({"detail": "Quantity must be a positive integer."}, status=400)
         except (ValueError, TypeError):
-            return Response({"detail": "Quantity must be a positive integer."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "Quantity must be a valid integer."}, status=400)
 
-        if not product_variant_id:
-            return Response({"detail": "Product ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+        if not telegram_id or not product_variant_id:
+            return Response({"detail": "telegram_id and product_variant_id are required."}, status=400)
 
+        # 2. Variant va userni topamiz
         try:
             product_variant = ProductVariant.objects.get(pk=product_variant_id, product__shop__is_active=True)
         except ProductVariant.DoesNotExist:
-            return Response({"detail": "Product not found or inactive."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"detail": "Product not found or inactive."}, status=404)
+        shop = product_variant.product.shop
+        if not shop:
+            return Response({"detail": "Product's shop is not defined."}, status=400)
 
         try:
             user = BotUser.objects.get(telegram_id=telegram_id)
         except BotUser.DoesNotExist:
-            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"detail": "User not found."}, status=404)
 
-        # basket_item, created = Basket.objects.get_or_create(
-        #     user=user,
-        #     product_variant=product_variant,
-        #     shop=product_variant.product.shop,
-        #     defaults={'quantity': quantity}
-        # )
-        #
-        # if not created:
-        #     basket_item.quantity += quantity
-        #     basket_item.save()
+        # 3. Basketni olish yoki yaratish
+        basket, created = Basket.objects.get_or_create(
+            user=user,
+            product_variant=product_variant,
+            shop=shop,  # <== SHOP ni qo‘shish kerak
+            defaults={'quantity': quantity}
+        )
 
-        baskets = Basket.objects.filter(user=user, product_variant=product_variant)
+        if not created:
+            basket.quantity = quantity
+            basket.save()
 
-        if baskets.exists():
-            basket = baskets.first()
-            if int(quantity) == 0:
-                basket.delete()
+        return Response({
+            "message": "Basket updated" if not created else "Basket created",
+            "basket_quantity": basket.quantity
+        }, status=200)
+
+
+class UpdateBasketQuantityAPIView(APIView):
+    """
+    Foydalainsh:
+    {
+      "telegram_id": "123456789",
+      "product_variant_id": 42,
+      "action": "add"  // yoki "remove"
+    }
+    """
+
+    def post(self, request, *args, **kwargs):
+        telegram_id = request.data.get('telegram_id')
+        product_variant_id = request.data.get('product_variant_id')
+        action = request.data.get('action')  # "add" yoki "remove"
+
+        if not all([telegram_id, product_variant_id, action]):
+            return Response({"detail": "telegram_id, product_variant_id and action are required."}, status=400)
+
+        if action not in ['add', 'remove']:
+            return Response({"detail": "Invalid action. Use 'add' or 'remove'."}, status=400)
+
+        try:
+            product_variant = ProductVariant.objects.get(pk=product_variant_id, product__shop__is_active=True)
+        except ProductVariant.DoesNotExist:
+            return Response({"detail": "Product variant not found or inactive."}, status=404)
+
+        try:
+            user = BotUser.objects.get(telegram_id=telegram_id)
+        except BotUser.DoesNotExist:
+            return Response({"detail": "User not found."}, status=404)
+
+        try:
+            basket = Basket.objects.get(user=user, product_variant=product_variant)
+        except Basket.DoesNotExist:
+            if action == 'add':
+                basket = Basket.objects.create(user=user, product_variant=product_variant, quantity=1)
+                return Response({"quantity": basket.quantity, "message": "Item added to basket."}, status=200)
             else:
-                basket.quantity = quantity
+                return Response({"detail": "Item not in basket."}, status=404)
+
+        # Update quantity
+        if action == 'add':
+            basket.quantity += 1
+            basket.save()
+            return Response({"quantity": basket.quantity, "message": "Item quantity increased."}, status=200)
+
+        elif action == 'remove':
+            if basket.quantity <= 1:
+                basket.delete()
+                return Response({"quantity": 0, "message": "Item removed from basket."}, status=200)
+            else:
+                basket.quantity -= 1
                 basket.save()
-        else:
-            basket = Basket.objects.create(
-                product_variant=product_variant,
-                user=user,
-                quantity=quantity
-            )
-
-        return Response({"basket_count": basket.quantity})
-
-        # return Response({"basket_id": basket_item.id}, status=status.HTTP_201_CREATED)
+                return Response({"quantity": basket.quantity, "message": "Item quantity decreased."}, status=200)
 
 
 class BasketListAPIView(ListAPIView):
+    """
+    Foydalanish: GET /basket/{my-shop-code}/?telegram_id=123456789
+    """
     serializer_class = ProductVariantSerializer
     queryset = Basket.objects.all()
 
@@ -275,11 +346,19 @@ class FavoriteListAPIView(ListAPIView):
     queryset = FavoriteProduct.objects.all()
 
     def get(self, request, shop_code, telegram_id):
-        qs = FavoriteProduct.objects.filter(user__telegram_id=telegram_id, shop__shop_code=shop_code).select_related(
-            'product')
-        ls = list()
+        qs = FavoriteProduct.objects.filter(
+            user__telegram_id=telegram_id,
+            product__shop__shop_code=shop_code
+        ).select_related('product__shop')
+        print(f"Found favorites: {qs.count()}")
+        user = BotUser.objects.filter(telegram_id=telegram_id).first()
+        print(f"User found: {user}")
+
+        ls = []
         for i in qs:
-            ls.append(ProductGetSerializer(i.product).data)
+            serializer = ProductGetSerializer(i.product, context={'user': user})
+            ls.append(serializer.data)
+            print(serializer.data)
         return Response(ls, status=status.HTTP_200_OK)
 
 
