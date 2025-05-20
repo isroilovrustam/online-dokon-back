@@ -350,15 +350,12 @@ class FavoriteListAPIView(ListAPIView):
             user__telegram_id=telegram_id,
             product__shop__shop_code=shop_code
         ).select_related('product__shop')
-        print(f"Found favorites: {qs.count()}")
         user = BotUser.objects.filter(telegram_id=telegram_id).first()
-        print(f"User found: {user}")
 
         ls = []
         for i in qs:
             serializer = ProductGetSerializer(i.product, context={'user': user})
             ls.append(serializer.data)
-            print(serializer.data)
         return Response(ls, status=status.HTTP_200_OK)
 
 

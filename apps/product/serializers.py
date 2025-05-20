@@ -109,20 +109,7 @@ class ProductGetSerializer(serializers.ModelSerializer):
     variants = ProductVariantSerializer(many=True)
     category = ProductCategorySerializer()
     shop = ShopSerializer()
-    quantity = serializers.SerializerMethodField()
     me_favorite = serializers.SerializerMethodField()
-
-
-    def get_quantity(self, obj):
-        request = self.context.get("request")
-        if request:
-            telegram_id = request.query_params.get("telegram_id")
-            try:
-                basket = Basket.objects.get(user__telegram_id=telegram_id, product_variant=obj)
-                return basket.quantity
-            except Basket.DoesNotExist:
-                return 0
-        return None
 
     def get_me_favorite(self, obj):
         user = self.context.get('user')
@@ -135,5 +122,5 @@ class ProductGetSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'shop', 'category', 'product_name',
             'description', 'created_at', 'updated_at',
-            'images', 'variants', 'quantity', 'me_favorite'
+            'images', 'variants', 'me_favorite'
         ]
