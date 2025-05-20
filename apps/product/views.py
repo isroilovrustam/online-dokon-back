@@ -354,7 +354,7 @@ class FavoriteListAPIView(ListAPIView):
 
         ls = []
         for i in qs:
-            serializer = ProductGetSerializer(i.product, context={'user': user})
+            serializer = ProductGetSerializer(i.product, context={'user': user, "request": request})
             ls.append(serializer.data)
         return Response(ls, status=status.HTTP_200_OK)
 
