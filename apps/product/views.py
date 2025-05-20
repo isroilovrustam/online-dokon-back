@@ -361,8 +361,18 @@ class FavoriteListAPIView(ListAPIView):
 
 class FavoriteProductDeleteAPIView(APIView):
     def delete(self, request, *args, **kwargs):
+        telegram_id = request.query_params.get('telegram_id')  # ✅ So‘rovdan olish
+
+        if not telegram_id:
+            return Response({"detail": "Telegram ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
-            favorite = FavoriteProduct.objects.get(id=self.kwargs['pk'])
+            user = BotUser.objects.get(telegram_id=telegram_id)
+        except BotUser.DoesNotExist:
+            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            favorite = FavoriteProduct.objects.get(id=self.kwargs['pk'], user=user)
             favorite.delete()
             return Response({"detail": "Product removed from favorites."}, status=status.HTTP_204_NO_CONTENT)
         except FavoriteProduct.DoesNotExist:
