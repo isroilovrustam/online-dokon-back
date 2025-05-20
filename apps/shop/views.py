@@ -42,12 +42,25 @@ class ShopDetailAPIView(generics.RetrieveUpdateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
-        # Manzillarni alohida qo‘shamiz (o‘chirmaymiz, faqat yangilarini qo‘shamiz)
+        # Manzillarni alohida boshqaramiz (mavjudini yangilaymiz, yangi bo‘lsa yaratamiz)
         if addresses_data:
-            for address in addresses_data:
-                ShopAddress.objects.create(shop=instance, **address)
+            for address_data in addresses_data:
+                address_id = address_data.get('id')
+                if address_id:
+                    # Agar ID bor bo‘lsa, mavjud manzilni yangilaymiz
+                    try:
+                        address = ShopAddress.objects.get(id=address_id, shop=instance)
+                        for attr, value in address_data.items():
+                            setattr(address, attr, value)
+                        address.save()
+                    except ShopAddress.DoesNotExist:
+                        continue  # noto‘g‘ri ID kelsa, tashlab ketamiz
+                else:
+                    # ID bo‘lmasa – yangi manzil yaratamiz
+                    ShopAddress.objects.create(shop=instance, **address_data)
 
         return Response(self.get_serializer(instance).data, status=status.HTTP_200_OK)
+
 
 class ShopByCodeCheckAPIView(APIView):
     def get(self, request, shop_code, *args, **kwargs):
