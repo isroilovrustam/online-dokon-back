@@ -45,10 +45,10 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
 
 class ProductVariantSerializer(serializers.ModelSerializer):
-    color = serializers.StringRelatedField()
-    size = serializers.StringRelatedField()
-    volume = serializers.StringRelatedField()
-    taste = serializers.StringRelatedField()
+    color = ProductColorSerializer(many=True)
+    size = ProductSizeSerializer(many=True)
+    volume = ProductVolumeSerializer(many=True)
+    taste = ProductTasteSerializer(many=True)
     quantity = serializers.SerializerMethodField()
     images = serializers.SerializerMethodField()
     product_name = serializers.SerializerMethodField()
