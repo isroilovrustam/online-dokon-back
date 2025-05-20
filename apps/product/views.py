@@ -145,6 +145,22 @@ class ProductListAPIView(ListAPIView):
             qs = qs.filter(Q(product_name_uz__icontains=name) | Q(product_name_ru__icontains=name))
         return qs
 
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        telegram_id = self.request.query_params.get("telegram_id")
+        user = BotUser.objects.filter(telegram_id=telegram_id).first() if telegram_id else None
+
+        if user:
+            for product_data in response.data:
+                product_id = product_data['id']
+                favorite = FavoriteProduct.objects.filter(user=user, product_id=product_id).first()
+                product_data['favorite_id'] = favorite.id if favorite else None
+        else:
+            for product_data in response.data:
+                product_data['favorite_id'] = None
+
+        return Response(response.data, status=status.HTTP_200_OK)
+
 
 class ProductCreateAPIView(CreateAPIView):
     queryset = Product.objects.all()
