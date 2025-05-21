@@ -48,6 +48,15 @@ class UserAddress(models.Model):
         return f"{self.user.full_name} {self.full_address}"
 
 
+class ReceptionMethod(models.Model):
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='reception_methods')
+    name = models.CharField(max_length=255)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return self.name
+
+
 class Order(models.Model):
     STATUS_CHOICES = [
         ('new', 'Yangi'),
@@ -56,12 +65,20 @@ class Order(models.Model):
         ('delivered', 'Yetkazildi'),
         ('cancelled', 'Bekor qilindi'),
     ]
+    PAYMENT_TYPE = [
+        ('Naqd', 'Naqd'),
+        ('Karta', 'Karta'),
+    ]
 
     user = models.ForeignKey(BotUser, on_delete=models.CASCADE, related_name='orders')  # Buyurtmachining o‘zi
-    address = models.ForeignKey(UserAddress, on_delete=models.SET_NULL, null=True,
-                                blank=True)  # Yetkazib berish manzili
+    longitude = models.FloatField()
+    latitude = models.FloatField()
+    payment_type = models.CharField(max_length=20, choices=PAYMENT_TYPE, default='Naqd')
+    reception_method = models.ForeignKey(ReceptionMethod, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new')  # Buyurtma holati
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # Umumiy narx
+    comment = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -73,7 +90,6 @@ class OrderItem(models.Model):
     product_variant = models.ForeignKey(ProductVariant, on_delete=models.SET_NULL,
                                         null=True)  # Mahsulot o‘chirilganda ham saqlanadi
     quantity = models.PositiveIntegerField(default=1)  # Miqdori (nechta)
-    price = models.DecimalField(max_digits=10, decimal_places=2)  # O‘sha vaqtdagi mahsulot narxi
 
     def __str__(self):
         return f"{self.product_variant} x {self.quantity}"
@@ -84,6 +100,7 @@ class FavoriteProduct(models.Model):
                              related_name='favorite_products')  # Qaysi foydalanuvchiga tegishli
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='favorited_by')  # Qaysi mahsulot
     added_at = models.DateTimeField(auto_now_add=True)  # Qachon yoqtirilgani
+
     # shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='favorited_by')
 
     class Meta:

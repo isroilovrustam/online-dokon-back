@@ -1,7 +1,12 @@
 from rest_framework import serializers
-
 from shop.models import Shop
-from .models import BotUser, UserAddress
+from .models import BotUser, UserAddress, ReceptionMethod
+
+
+class ReceptionMethodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReceptionMethod
+        fields = '__all__'
 
 
 class UserAddressSerializer(serializers.ModelSerializer):
@@ -64,4 +69,3 @@ class ReklamaSerializer(serializers.Serializer):
     image = serializers.ImageField()
     link = serializers.CharField(allow_null=True, required=False)
     product_id = serializers.IntegerField(allow_null=True, required=False)
-

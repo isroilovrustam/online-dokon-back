@@ -4,14 +4,16 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from botuser.models import BotUser
-from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 import requests
 from config import settings
-from .models import Product, ProductColor, ProductTaste, ProductVolume, ProductSize, ProductCategory, ProductVariant
+from .models import Product, ProductColor, ProductTaste, ProductVolume, ProductSize, ProductCategory, ProductVariant, \
+    ProductImage
 from .serializers import ProductSerializer, ProductSizeSerializer, ProductVolumeSerializer, ProductColorSerializer, \
-    ProductTasteSerializer, ProductCategorySerializer, ProductGetSerializer, ProductVariantSerializer
+    ProductTasteSerializer, ProductCategorySerializer, ProductGetSerializer, ProductVariantSerializer, \
+    ProductImageSerializer, ProductPatchSerializer, ProductVariantPostSerializer
 from shop.models import Basket
 from botuser.models import FavoriteProduct, UserAddress, Order, OrderItem
 from django.shortcuts import get_object_or_404
@@ -167,10 +169,14 @@ class ProductCreateAPIView(CreateAPIView):
     serializer_class = ProductSerializer
 
 
-class ProductDetailView(RetrieveAPIView):
+class ProductDetailView(RetrieveAPIView, UpdateAPIView, DestroyAPIView):
     queryset = Product.objects.all()
-    serializer_class = ProductGetSerializer
     lookup_field = 'pk'
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ProductGetSerializer
+        return ProductPatchSerializer
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -491,3 +497,22 @@ class CreateOrderAPIView(APIView):
             print(f"Telegramga xabar yuborishda xatolik: {e}")
 
         return Response({"order_id": order.id, "total_price": order.total_price}, status=status.HTTP_201_CREATED)
+
+
+class ProductImageCreateView(CreateAPIView):
+    queryset = ProductImage.objects.all()
+    serializer_class = ProductImageSerializer
+
+
+class ProductImageDeleteView(DestroyAPIView):
+    queryset = ProductImage.objects.all()
+    serializer_class = ProductImageSerializer
+
+class ProductVariantCreateView(CreateAPIView):
+    queryset = ProductVariant.objects.all()
+    serializer_class = ProductVariantPostSerializer
+
+
+class ProductVariantDeleteView(DestroyAPIView, UpdateAPIView):
+    queryset = ProductVariant.objects.all()
+    serializer_class = ProductVariantPostSerializer

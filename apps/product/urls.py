@@ -5,13 +5,13 @@ from .views import ProductListAPIView, ProductDetailView, CreateBasketAPIView, D
     ProductTasteCreateAPIView, ProductVolumeCreateAPIView, ProductTasteListAPIView, ShopColorListAPIView, \
     ShopSizeListAPIView, ProductVolumeListAPIView, ProductCreateAPIView, ProductCategoryCreateAPIView, \
     ProductCategoryListAPIView, FavoriteProductDeleteAPIView, FavoriteListAPIView, BasketListAPIView, \
-    ProductColorListAPIView, ProductSizeListAPIView, UpdateBasketQuantityAPIView
+    ProductColorListAPIView, ProductSizeListAPIView, UpdateBasketQuantityAPIView, ProductImageCreateView, ProductImageDeleteView, ProductVariantCreateView, ProductVariantDeleteView
 
 urlpatterns = [
-    path('basket/create/', CreateBasketAPIView.as_view(), name='create-basket'),
-    path('basket/<str:shop_code>/', BasketListAPIView.as_view(), name='basket-list'),
-    path('basket/update/', UpdateBasketQuantityAPIView.as_view(), name='update-basket'),
-    path('basket/<int:pk>/delete/', DeleteBasketAPIView.as_view(), name='delete-basket'),
+    # path('basket/create/', CreateBasketAPIView.as_view(), name='create-basket'),
+    # path('basket/<str:shop_code>/', BasketListAPIView.as_view(), name='basket-list'),
+    # path('basket/update/', UpdateBasketQuantityAPIView.as_view(), name='update-basket'),
+    # path('basket/<int:pk>/delete/', DeleteBasketAPIView.as_view(), name='delete-basket'),
     path('favorites/', FavoriteProductAPIView.as_view(), name='favorite-product'),
     path('favorites/<str:shop_code>/<int:telegram_id>/', FavoriteListAPIView.as_view(), name='favorite-list'),
     path('favorites/<int:pk>/delete/', FavoriteProductDeleteAPIView.as_view(), name='favorite-product'),
@@ -31,4 +31,8 @@ urlpatterns = [
     path('<str:shop_code>/products/', ProductListAPIView.as_view(), name='shop-products'),
     path('<int:pk>/detail/', ProductDetailView.as_view(), name='product-detail'),  # Yoki <str:shop_code>
     path('products/', ProductCreateAPIView.as_view(), name='product-list'),
+    path('images/create', ProductImageCreateView.as_view(), name='product-image'),
+    path('image/<int:pk>/', ProductImageDeleteView.as_view(), name='product-image'),
+    path('variants/create', ProductVariantCreateView.as_view(), name='product-variant'),
+    path('variants/<int:pk>/', ProductVariantDeleteView.as_view(), name='product-variant'),
 ]

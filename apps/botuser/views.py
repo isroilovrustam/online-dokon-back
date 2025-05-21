@@ -1,8 +1,19 @@
-from rest_framework import status, permissions, generics
+from rest_framework import status, permissions, generics, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import BotUser, UserAddress, ReklamaBotUser, ReklamaAdmin
-from .serializers import BotUserSerializer, SetActiveShopSerializer, ReklamaSerializer, UserAddressSerializer
+from .models import BotUser, UserAddress, ReklamaBotUser, ReklamaAdmin, ReceptionMethod
+from .serializers import BotUserSerializer, SetActiveShopSerializer, ReklamaSerializer, UserAddressSerializer, \
+    ReceptionMethodSerializer
+
+
+class ReceptionMethodListCreateAPIView(generics.ListCreateAPIView):
+    queryset = ReceptionMethod.objects.all()
+    serializer_class = ReceptionMethodSerializer
+
+
+class ReceptionMethodDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = ReceptionMethod.objects.all()
+    serializer_class = ReceptionMethodSerializer
 
 
 class BotUserRegisterView(APIView):

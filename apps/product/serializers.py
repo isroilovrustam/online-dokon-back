@@ -1,9 +1,6 @@
-from django.db.models import Sum
 from rest_framework import serializers
-
-from botuser.models import FavoriteProduct, BotUser
+from botuser.models import FavoriteProduct
 from shop.models import Basket
-from shop.serializers import ShopSerializer
 from .models import ProductImage, ProductVariant, Product, ProductVolume, ProductSize, ProductTaste, ProductColor, \
     ProductCategory
 
@@ -41,10 +38,32 @@ class ProductVolumeSerializer(serializers.ModelSerializer):
 class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductImage
-        fields = ['id', 'image']
+        fields = ['id', 'image', 'product']
 
 
 class ProductVariantSerializer(serializers.ModelSerializer):
+    color = serializers.PrimaryKeyRelatedField(queryset=ProductColor.objects.all())
+    size = serializers.PrimaryKeyRelatedField(queryset=ProductSize.objects.all())
+    volume = serializers.PrimaryKeyRelatedField(queryset=ProductVolume.objects.all())
+    taste = serializers.PrimaryKeyRelatedField(queryset=ProductTaste.objects.all())
+    class Meta:
+        model = ProductVariant
+        fields = [
+            'color', 'size', 'volume', 'taste',
+            'price', 'discount_price', 'discount_percent', 'prepayment_amount',
+            'stock', 'is_active'
+        ]
+class ProductVariantPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductVariant
+        fields = [
+            'id', 'color', 'size', 'volume', 'taste', 'product',
+            'price', 'discount_price', 'discount_percent', 'prepayment_amount',
+            'stock', 'is_active'
+        ]
+
+
+class ProductVariantGetSerializer(serializers.ModelSerializer):
     color = ProductColorSerializer()
     size = ProductSizeSerializer()
     volume = ProductVolumeSerializer()
@@ -81,7 +100,7 @@ class ProductVariantSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    images = ProductImageSerializer(many=True)
+    images = ProductImageSerializer(many=True, required=False)
     variants = ProductVariantSerializer(many=True)
 
     class Meta:
@@ -94,7 +113,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         images_data = validated_data.pop('images', [])
-        variants_data = validated_data.data.pop('variants', [])
+        variants_data = validated_data.pop('variants', [])
         product = Product.objects.create(**validated_data)
 
         for image_data in images_data:
@@ -102,13 +121,19 @@ class ProductSerializer(serializers.ModelSerializer):
         for variants_data in variants_data:
             ProductVariant.objects.create(product=product, **variants_data)
         return product
+class ProductPatchSerializer(serializers.ModelSerializer):
 
+    class Meta:
+        model = Product
+        fields = [
+            'shop', 'category', 'product_name_uz', 'product_name_ru',
+            'description_uz', 'description_ru'
+        ]
 
 class ProductGetSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True)
-    variants = ProductVariantSerializer(many=True)
+    variants = ProductVariantGetSerializer(many=True)
     category = ProductCategorySerializer()
-    shop = ShopSerializer()
     me_favorite = serializers.SerializerMethodField()
 
     def get_me_favorite(self, obj):

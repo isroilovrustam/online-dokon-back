@@ -1,16 +1,34 @@
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView, UpdateAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
-from shop.models import Shop, ShopAddress
-from .serializers import ShopCheckSerializer, ShopSerializer, ShopGetSerializer
+from shop.models import Shop, ShopAddress, Basket
+from .serializers import ShopCheckSerializer, ShopSerializer, ShopGetSerializer, BasketSerializer, BasketGetSerializer, \
+    BasketPathSerializer
 from django.db import transaction
 
 
-#
+class BasketCreateView(CreateAPIView, ):
+    queryset = Basket.objects.all()
+    serializer_class = BasketSerializer
+
+
+class BasketListView(ListAPIView):
+    serializer_class = BasketGetSerializer
+
+    def get_queryset(self):
+        return Basket.objects.filter(user__telegram_id=self.kwargs['telegram_id'],
+                                     shop__shop_code=self.kwargs['shop_code'])
+
+
+class BasketUpdateView(UpdateAPIView):
+    queryset = Basket.objects.all()
+    serializer_class = BasketPathSerializer
+
+
 class ShopListAPIView(ListAPIView):
-    queryset = Shop.objects.all()
     serializer_class = ShopGetSerializer
+    queryset = Shop.objects.all()
 
 
 class ShopAddressDeleteAPIView(APIView):

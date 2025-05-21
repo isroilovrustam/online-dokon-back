@@ -1,6 +1,7 @@
 # serializers.py
 from rest_framework import serializers
-from shop.models import Shop, ShopAddress
+from shop.models import Shop, ShopAddress, Basket
+from product.serializers import ProductVariantGetSerializer
 
 
 class ShopAddressSerializer(serializers.ModelSerializer):
@@ -44,3 +45,21 @@ class ShopCheckSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shop
         fields = ['shop_code', 'is_active']
+
+
+class BasketSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Basket
+        fields = ['user', 'shop', 'product_variant', 'quantity']
+class BasketPathSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Basket
+        fields = ['quantity']
+
+
+class BasketGetSerializer(serializers.ModelSerializer):
+    product_variant = ProductVariantGetSerializer()
+
+    class Meta:
+        model = Basket
+        fields = ['product_variant', 'quantity']

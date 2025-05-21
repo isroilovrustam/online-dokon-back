@@ -50,6 +50,13 @@ class Product(models.Model):
     product_name = models.CharField(max_length=255, verbose_name="Mahsulot nomi")
     description = models.TextField(blank=True, null=True, verbose_name="Qisqacha tavsif")
 
+    prepayment_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Agar oldindan to‘lov talab qilinsa, shu yerga summani kiriting"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -67,22 +74,16 @@ class ProductImage(models.Model):
 
 class ProductVariant(models.Model):
     product = models.ForeignKey(Product, related_name='variants', on_delete=models.CASCADE)
-    color = models.ForeignKey(ProductColor, on_delete=models.CASCADE, null=True, blank=True)
-    size = models.ForeignKey(ProductSize, on_delete=models.CASCADE, null=True, blank=True)
-    volume = models.ForeignKey(ProductVolume, on_delete=models.CASCADE, null=True, blank=True)
-    taste = models.ForeignKey(ProductTaste, on_delete=models.CASCADE, null=True, blank=True)
+    color = models.ForeignKey(ProductColor, on_delete=models.SET_NULL, null=True, blank=True)
+    size = models.ForeignKey(ProductSize, on_delete=models.SET_NULL, null=True, blank=True)
+    volume = models.ForeignKey(ProductVolume, on_delete=models.SET_NULL, null=True, blank=True)
+    taste = models.ForeignKey(ProductTaste, on_delete=models.SET_NULL, null=True, blank=True)
 
     price = models.CharField(max_length=30, verbose_name="Asl narx (so'm)")
     discount_price = models.CharField(max_length=30, blank=True, null=True,
-                                         verbose_name="Chegirma narxi (so'm)")
+                                      verbose_name="Chegirma narxi (so'm)")
     discount_percent = models.PositiveIntegerField(blank=True, null=True, verbose_name="Chegirma foizi (%)")
-    prepayment_amount = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        null=True,
-        blank=True,
-        help_text="Agar oldindan to‘lov talab qilinsa, shu yerga summani kiriting"
-    )
+
     stock = models.PositiveIntegerField(default=0, verbose_name="Ombordagi soni")
     is_active = models.BooleanField(default=True, verbose_name="Faol holatda")
 
@@ -91,4 +92,3 @@ class ProductVariant(models.Model):
 
     def __str__(self):
         return f"{self.product.product_name} | Rang: {self.color} | Razmer: {self.size or '-'} | Hajm: {self.volume or '-'} | Ta’m: {self.taste or '-'}"
-
