@@ -8,7 +8,7 @@ from .models import ProductImage, ProductVariant, Product, ProductVolume, Produc
 class ProductCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductCategory
-        fields = ["id", "name", "image"]
+        fields = ["id", "name", "image", "shop"]
 
 
 class ProductColorSerializer(serializers.ModelSerializer):
