@@ -39,6 +39,6 @@ jobs:
           docker pull ${{ secrets.DOCKER_USERNAME }}/market-back
           docker stop market-back || true
           docker rm market-back || true
-          docker run -d --name market-back -p 8001:8000 ${{ secrets.DOCKER_USERNAME }}/market-back
+          docker run -d --name market-back -p 8001:8000 -v /home/ubuntu/market/media:/app/media ${{ secrets.DOCKER_USERNAME }}/market-back
           docker image prune -f
         EOF
