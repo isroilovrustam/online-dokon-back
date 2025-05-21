@@ -42,10 +42,6 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
 
 class ProductVariantSerializer(serializers.ModelSerializer):
-    # color = serializers.PrimaryKeyRelatedField(queryset=ProductColor.objects.all())
-    # size = serializers.PrimaryKeyRelatedField(queryset=ProductSize.objects.all())
-    # volume = serializers.PrimaryKeyRelatedField(queryset=ProductVolume.objects.all())
-    # taste = serializers.PrimaryKeyRelatedField(queryset=ProductTaste.objects.all())
     class Meta:
         model = ProductVariant
         fields = [
@@ -53,6 +49,8 @@ class ProductVariantSerializer(serializers.ModelSerializer):
             'price', 'discount_price', 'discount_percent',
             'stock', 'is_active'
         ]
+
+
 class ProductVariantPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductVariant
@@ -68,7 +66,6 @@ class ProductVariantGetSerializer(serializers.ModelSerializer):
     size = ProductSizeSerializer()
     volume = ProductVolumeSerializer()
     taste = ProductTasteSerializer()
-    quantity = serializers.SerializerMethodField()
     images = serializers.SerializerMethodField()
     product_name = serializers.SerializerMethodField()
 
@@ -79,23 +76,13 @@ class ProductVariantGetSerializer(serializers.ModelSerializer):
         images = obj.product.images.all()  # assuming a reverse relation: `related_name='images'` in ProductImage
         return [image.image.url for image in images]
 
-    def get_quantity(self, obj):
-        request = self.context.get("request")
-        if request:
-            telegram_id = request.query_params.get("telegram_id")
-            try:
-                basket = Basket.objects.get(user__telegram_id=telegram_id, product_variant=obj)
-                return basket.quantity
-            except Basket.DoesNotExist:
-                return 0
-        return None
 
     class Meta:
         model = ProductVariant
         fields = [
             'id', 'color', 'size', 'volume', 'taste',
             'price', 'discount_price', 'discount_percent',
-            'stock', 'is_active', 'images', 'quantity', 'product_name'
+            'stock', 'is_active', 'images', 'product_name'
         ]
 
 
@@ -121,14 +108,16 @@ class ProductSerializer(serializers.ModelSerializer):
         for variants_data in variants_data:
             ProductVariant.objects.create(product=product, **variants_data)
         return product
-class ProductPatchSerializer(serializers.ModelSerializer):
 
+
+class ProductPatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = [
             'shop', 'category', 'product_name_uz', 'product_name_ru',
             'description_uz', 'description_ru', 'prepayment_amount',
         ]
+
 
 class ProductGetSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True)
