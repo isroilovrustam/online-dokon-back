@@ -14,7 +14,7 @@ class Shop(models.Model):
     owner = models.ForeignKey('botuser.BotUser', on_delete=models.CASCADE, related_name='shops')
     shop_name = models.CharField(max_length=150)  # Do'kon nomi
     phone_number = models.CharField(max_length=20, blank=True, null=True)
-    shop_code = models.CharField(max_length=100,
+    shop_code = models.CharField(max_length=100, primary_key=True,
                                  unique=True)  # Do'kon koddi yani shu do'kon uchun alohida link beriladi shu link orqali botga start bosganda faqat shu do'kon mahsulotlari ko'rinishi uchun
     description = models.TextField(blank=True, null=True)  # Do'kon haqida qisqacha
     shop_logo = models.ImageField(upload_to='shop_logos/', null=True, blank=True)  # Do'kon logotipi

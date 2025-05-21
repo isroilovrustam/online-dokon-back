@@ -111,12 +111,12 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
 LANGUAGES = (
+("uz", "Uzbek"),
     ("ru", "Russian"),
-    ("uz", "Uzbek"),
 )
 
-MODELTRANSLATION_DEFAULT_LANGUAGE = "ru"
-MODELTRANSLATION_LANGUAGES = ("ru", "uz")
+MODELTRANSLATION_DEFAULT_LANGUAGE = "uz"
+MODELTRANSLATION_LANGUAGES = ( "uz", "ru")
 LANGUAGE_CODE = 'ru'
 TIME_ZONE = 'Asia/Tashkent'
 

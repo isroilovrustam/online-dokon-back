@@ -42,10 +42,10 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
 
 class ProductVariantSerializer(serializers.ModelSerializer):
-    color = serializers.PrimaryKeyRelatedField(queryset=ProductColor.objects.all())
-    size = serializers.PrimaryKeyRelatedField(queryset=ProductSize.objects.all())
-    volume = serializers.PrimaryKeyRelatedField(queryset=ProductVolume.objects.all())
-    taste = serializers.PrimaryKeyRelatedField(queryset=ProductTaste.objects.all())
+    # color = serializers.PrimaryKeyRelatedField(queryset=ProductColor.objects.all())
+    # size = serializers.PrimaryKeyRelatedField(queryset=ProductSize.objects.all())
+    # volume = serializers.PrimaryKeyRelatedField(queryset=ProductVolume.objects.all())
+    # taste = serializers.PrimaryKeyRelatedField(queryset=ProductTaste.objects.all())
     class Meta:
         model = ProductVariant
         fields = [
