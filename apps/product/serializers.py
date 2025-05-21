@@ -50,7 +50,7 @@ class ProductVariantSerializer(serializers.ModelSerializer):
         model = ProductVariant
         fields = [
             'color', 'size', 'volume', 'taste',
-            'price', 'discount_price', 'discount_percent', 'prepayment_amount',
+            'price', 'discount_price', 'discount_percent',
             'stock', 'is_active'
         ]
 class ProductVariantPostSerializer(serializers.ModelSerializer):
@@ -58,7 +58,7 @@ class ProductVariantPostSerializer(serializers.ModelSerializer):
         model = ProductVariant
         fields = [
             'id', 'color', 'size', 'volume', 'taste', 'product',
-            'price', 'discount_price', 'discount_percent', 'prepayment_amount',
+            'price', 'discount_price', 'discount_percent',
             'stock', 'is_active'
         ]
 
@@ -94,7 +94,7 @@ class ProductVariantGetSerializer(serializers.ModelSerializer):
         model = ProductVariant
         fields = [
             'id', 'color', 'size', 'volume', 'taste',
-            'price', 'discount_price', 'discount_percent', 'prepayment_amount',
+            'price', 'discount_price', 'discount_percent',
             'stock', 'is_active', 'images', 'quantity', 'product_name'
         ]
 
@@ -108,7 +108,7 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'shop', 'category', 'product_name_uz', 'product_name_ru',
             'description_uz', 'description_ru', 'created_at', 'updated_at',
-            'images', 'variants'
+            'images', 'variants', 'prepayment_amount'
         ]
 
     def create(self, validated_data):
@@ -127,7 +127,7 @@ class ProductPatchSerializer(serializers.ModelSerializer):
         model = Product
         fields = [
             'shop', 'category', 'product_name_uz', 'product_name_ru',
-            'description_uz', 'description_ru'
+            'description_uz', 'description_ru', 'prepayment_amount',
         ]
 
 class ProductGetSerializer(serializers.ModelSerializer):
@@ -147,5 +147,5 @@ class ProductGetSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'shop', 'category', 'product_name',
             'description', 'created_at', 'updated_at',
-            'images', 'variants', 'me_favorite'
+            'images', 'variants', 'me_favorite', 'prepayment_amount'
         ]

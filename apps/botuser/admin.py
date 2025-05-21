@@ -11,7 +11,6 @@ class UserAddressInline(admin.TabularInline):
     readonly_fields = ('created_at',)
 
 
-
 @admin.register(BotUser)
 class BotUserAdmin(admin.ModelAdmin):
     list_display = ('id', 'phone_number', 'telegram_username', 'user_roles', 'language', 'created_at')
@@ -26,7 +25,7 @@ class BotUserAdmin(admin.ModelAdmin):
 @admin.register(UserAddress)
 class UserAddressAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'full_address', 'created_at')
-    search_fields = ('full_address', )
+    search_fields = ('full_address',)
     autocomplete_fields = ('user',)
 
 
@@ -53,13 +52,10 @@ class OrderItemAdmin(admin.ModelAdmin):
     autocomplete_fields = ('order', 'product_variant')
 
 
-
-
-
 @admin.register(FavoriteProduct)
 class FavoriteProductAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'product', 'added_at')
-    search_fields = ('user__phone_number', )
+    search_fields = ('user__phone_number',)
     autocomplete_fields = ('user', 'product')
     ordering = ('-added_at',)
 
@@ -70,6 +66,7 @@ class ReklamaAdminAdmin(admin.ModelAdmin):
     list_display = ('id', 'image', 'link')  # Ko‘rinish qismi
     list_filter = ('link',)  # Filtrlash uchun
     search_fields = ('link',)  # Izlash uchun
+
 
 # ReklamaBotUser modelini admin panelga qo‘shish
 @admin.register(ReklamaBotUser)

@@ -1,4 +1,4 @@
-from rest_framework.generics import ListAPIView, CreateAPIView, UpdateAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
@@ -21,7 +21,7 @@ class BasketListView(ListAPIView):
                                      shop__shop_code=self.kwargs['shop_code'])
 
 
-class BasketUpdateView(UpdateAPIView):
+class BasketUpdateView(UpdateAPIView, DestroyAPIView):
     queryset = Basket.objects.all()
     serializer_class = BasketPathSerializer
 
