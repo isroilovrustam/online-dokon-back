@@ -26,6 +26,7 @@ class BotUserSerializer(serializers.ModelSerializer):
                 "shop_code": obj.active_shop.shop_code,
                 "shop_name": obj.active_shop.shop_name,
                 "is_active": obj.active_shop.is_active,
+                "phone_number": obj.active_shop.phone_number,
             }
         return None
 
