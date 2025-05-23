@@ -13,7 +13,7 @@ class UserAddressInline(admin.TabularInline):
 
 @admin.register(BotUser)
 class BotUserAdmin(admin.ModelAdmin):
-    list_display = ('id', 'phone_number', 'telegram_username', 'user_roles', 'language', 'created_at')
+    list_display = ('phone_number', 'telegram_username', 'user_roles', 'language', 'created_at')
     list_filter = ('user_roles', 'language', 'created_at')
     search_fields = ('phone_number', 'telegram_username', 'first_name', 'last_name')
     readonly_fields = ('created_at', 'updated_at')
