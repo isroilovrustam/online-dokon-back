@@ -1,5 +1,7 @@
 # serializers.py
 from rest_framework import serializers
+
+from botuser.models import BotUser
 from shop.models import Shop, ShopAddress, Basket
 from product.serializers import ProductVariantGetSerializer
 
@@ -48,9 +50,23 @@ class ShopCheckSerializer(serializers.ModelSerializer):
 
 
 class BasketSerializer(serializers.ModelSerializer):
+    telegram_id = serializers.IntegerField(write_only=True)
+
     class Meta:
         model = Basket
-        fields = ['user', 'shop', 'product_variant', 'quantity']
+        fields = ['telegram_id', 'shop', 'product_variant', 'quantity']
+
+    def create(self, validated_data):
+        telegram_id = validated_data.pop('telegram_id')
+        try:
+            user = BotUser.objects.get(telegram_id=telegram_id)
+        except BotUser.DoesNotExist:
+            raise serializers.ValidationError("Foydalanuvchi topilmadi.")
+
+        return Basket.objects.create(user=user, **validated_data)
+
+
+
 class BasketPathSerializer(serializers.ModelSerializer):
     class Meta:
         model = Basket
