@@ -78,4 +78,4 @@ class BasketGetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Basket
-        fields = ['product_variant', 'quantity']
+        fields = ['id', 'product_variant', 'quantity']
