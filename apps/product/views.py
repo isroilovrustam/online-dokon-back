@@ -508,6 +508,7 @@ class ProductImageDeleteView(DestroyAPIView):
     queryset = ProductImage.objects.all()
     serializer_class = ProductImageSerializer
 
+
 class ProductVariantCreateView(CreateAPIView):
     queryset = ProductVariant.objects.all()
     serializer_class = ProductVariantPostSerializer

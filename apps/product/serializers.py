@@ -1,3 +1,4 @@
+from django.db.models import Sum
 from rest_framework import serializers
 from botuser.models import FavoriteProduct
 from shop.models import Basket
@@ -76,7 +77,6 @@ class ProductVariantGetSerializer(serializers.ModelSerializer):
         images = obj.product.images.all()  # assuming a reverse relation: `related_name='images'` in ProductImage
         return [image.image.url for image in images]
 
-
     class Meta:
         model = ProductVariant
         fields = [
@@ -124,6 +124,7 @@ class ProductGetSerializer(serializers.ModelSerializer):
     variants = ProductVariantGetSerializer(many=True)
     category = ProductCategorySerializer()
     me_favorite = serializers.SerializerMethodField()
+    quantity = serializers.SerializerMethodField()
 
     def get_me_favorite(self, obj):
         user = self.context.get('user')
@@ -131,10 +132,21 @@ class ProductGetSerializer(serializers.ModelSerializer):
             return False
         return FavoriteProduct.objects.filter(product=obj, user=user).exists()
 
+    def get_quantity(self, obj):
+        user = self.context.get('user')
+        if not user:
+            return 0
+
+        # Shu productga tegishli barcha variantlar uchun foydalanuvchining savatdagi quantity summasi
+        return Basket.objects.filter(
+            user=user,
+            product_variant__product=obj
+        ).aggregate(total=Sum('quantity'))['total'] or 0
+
     class Meta:
         model = Product
         fields = [
             'id', 'shop', 'category', 'product_name',
             'description', 'created_at', 'updated_at',
-            'images', 'variants', 'me_favorite', 'prepayment_amount'
+            'images', 'variants', 'me_favorite', 'quantity', 'prepayment_amount'
         ]
