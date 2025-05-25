@@ -404,7 +404,7 @@ class FavoriteProductDeleteAPIView(APIView):
         try:
             favorite = FavoriteProduct.objects.get(id=self.kwargs['pk'], user=user)
             favorite.delete()
-            return Response({"detail": "Product removed from favorites."}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"detail": "Product removed from favorites."}, status=status.HTTP_200_OK)
         except FavoriteProduct.DoesNotExist:
             return Response({"detail": "Product not found in favorites."}, status=status.HTTP_404_NOT_FOUND)
 
