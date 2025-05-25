@@ -69,6 +69,7 @@ class ProductVariantGetSerializer(serializers.ModelSerializer):
     taste = ProductTasteSerializer()
     images = serializers.SerializerMethodField()
     product_name = serializers.SerializerMethodField()
+    quantity = serializers.SerializerMethodField()
 
     def get_product_name(self, obj):
         return obj.product.product_name if obj.product else None
@@ -77,12 +78,18 @@ class ProductVariantGetSerializer(serializers.ModelSerializer):
         images = obj.product.images.all()  # assuming a reverse relation: `related_name='images'` in ProductImage
         return [image.image.url for image in images]
 
+    def get_quantity(self, obj):
+        user = self.context.get('user')
+        if not user:
+            return 0
+        return Basket.objects.filter(user=user, product_variant=obj).aggregate(total=Sum('quantity'))['total'] or 0
+
     class Meta:
         model = ProductVariant
         fields = [
             'id', 'color', 'size', 'volume', 'taste',
             'price', 'discount_price', 'discount_percent',
-            'stock', 'is_active', 'images', 'product_name'
+            'stock', 'is_active', 'images', 'product_name', 'quantity'
         ]
 
 
