@@ -180,9 +180,15 @@ class ProductDetailView(RetrieveAPIView, UpdateAPIView, DestroyAPIView):
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
+        telegram_id = self.request.query_params.get('telegram_id')
+        user = None
+        if telegram_id:
+            user = BotUser.objects.filter(telegram_id=telegram_id).first()
+
         context.update({
             'request': self.request,
-            'telegram_id': self.request.query_params.get('telegram_id')
+            'telegram_id': telegram_id,
+            'user': user  # serializer ichida get_quantity va get_me_favorite ishlashi uchun
         })
         return context
 
