@@ -35,7 +35,7 @@ class BotUserRegisterView(APIView):
             return Response({"detail": "User with this telegram_id already exists."}, status=status.HTTP_200_OK)
 
         # Foydalanuvchi borligini tekshirish yoki yangi foydalanuvchi yaratish
-        user, created = BotUser.objects.get_or_create(phone_number=phone_number)
+        user, created = BotUser.objects.get_or_create(phone_number=phone_number, defaults={"telegram_id": telegram_id})
         user.telegram_id = telegram_id
         user.first_name = first_name
         user.last_name = last_name
