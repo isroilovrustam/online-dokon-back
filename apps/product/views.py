@@ -4,7 +4,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from botuser.models import BotUser
-from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView, \
+    RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 import requests
@@ -520,6 +521,6 @@ class ProductVariantCreateView(CreateAPIView):
     serializer_class = ProductVariantPostSerializer
 
 
-class ProductVariantDeleteView(DestroyAPIView, UpdateAPIView):
+class ProductVariantDeleteView(RetrieveUpdateDestroyAPIView):
     queryset = ProductVariant.objects.all()
     serializer_class = ProductVariantPostSerializer
