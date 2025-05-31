@@ -41,7 +41,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductImage
-        fields = ['id', 'image', 'product']
+        fields = ['id', 'image']
 
 
 class ProductVariantSerializer(serializers.ModelSerializer):
@@ -116,10 +116,10 @@ class ProductSerializer(serializers.ModelSerializer):
         variants_data = validated_data.pop('variants', [])
         product = Product.objects.create(**validated_data)
 
-        for image_data in images_data:
-            ProductImage.objects.create(product=product, **image_data)
-        for variants_data in variants_data:
-            ProductVariant.objects.create(product=product, **variants_data)
+        for image in images_data:
+            ProductImage.objects.create(product=product, **image)
+        for variant in variants_data:
+            ProductVariant.objects.create(product=product, **variant)
         return product
 
 
