@@ -1,7 +1,7 @@
 from django.db.models import Sum
 from rest_framework import serializers
 from botuser.models import FavoriteProduct
-from shop.models import Basket
+from shop.models import Basket, Shop
 from .models import ProductImage, ProductVariant, Product, ProductVolume, ProductSize, ProductTaste, ProductColor, \
     ProductCategory
 
@@ -37,6 +37,8 @@ class ProductVolumeSerializer(serializers.ModelSerializer):
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(required=False, allow_null=True)
+
     class Meta:
         model = ProductImage
         fields = ['id', 'image', 'product']
@@ -96,6 +98,10 @@ class ProductVariantGetSerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, required=False)
     variants = ProductVariantSerializer(many=True)
+    shop = serializers.SlugRelatedField(
+        queryset=Shop.objects.all(),
+        slug_field='shop_code'
+    )
 
     class Meta:
         model = Product
