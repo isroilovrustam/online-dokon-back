@@ -78,7 +78,7 @@ class ProductVariantGetSerializer(serializers.ModelSerializer):
 
     def get_images(self, obj):
         images = obj.product.images.all()  # assuming a reverse relation: `related_name='images'` in ProductImage
-        return [image.image.url for image in images]
+        return [image.image.url if image.image else None for image in images]
 
     def get_quantity(self, obj):
         user = self.context.get('user')
