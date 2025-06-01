@@ -119,6 +119,7 @@ class ProductSerializer(serializers.ModelSerializer):
         for image in images_data:
             ProductImage.objects.create(product=product, **image)
         for variant in variants_data:
+            print(variant)
             ProductVariant.objects.create(product=product, **variant)
         return product
 

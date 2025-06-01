@@ -1,15 +1,12 @@
 from django.db.models import Q
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
 from botuser.models import BotUser
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView, \
     RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 import requests
-from config import settings
+from config.settings import BOT_B_TOKEN
 from .models import Product, ProductColor, ProductTaste, ProductVolume, ProductSize, ProductCategory, ProductVariant, \
     ProductImage
 from .serializers import ProductSerializer, ProductSizeSerializer, ProductVolumeSerializer, ProductColorSerializer, \
@@ -17,7 +14,6 @@ from .serializers import ProductSerializer, ProductSizeSerializer, ProductVolume
     ProductImageSerializer, ProductPatchSerializer, ProductVariantPostSerializer
 from shop.models import Basket
 from botuser.models import FavoriteProduct, UserAddress, Order, OrderItem
-from django.shortcuts import get_object_or_404
 
 
 class ProductCategoryCreateAPIView(CreateAPIView):
@@ -411,43 +407,39 @@ class FavoriteProductDeleteAPIView(APIView):
 
 
 def send_telegram_order_message(shop, order):
-    bot_token = settings.BOT_B_TOKEN
-    chat_id = shop.telegram_group  # shop orqali aniqlaysiz
+    if not shop.telegram_group:
+        print("Do'konning Telegram guruhi belgilanmagan.")
+        return
 
-    text = (
-        f"🛍 Yangi buyurtma!\n"
-        f"📦 Buyurtma ID: {order.id}\n"
-        f"👤 Foydalanuvchi: {order.user.full_name} ({order.user.phone_number})\n"
-        f"📍 Manzil: {order.address.address}\n"
-        f"💰 Umumiy summa: {order.total_price} so'm\n\n"
-        f"🧾 Buyurtma tarkibi:\n"
-    )
+    chat_id = shop.telegram_group  # bu joyda group chat ID yoki username bo'lishi mumkin
+    text = f"""
+🛒 <b>Yangi zakaz!</b>
+
+👤 Buyurtmachi: {order.user.full_name}
+📍 Manzil: {order.address}
+💵 Narxi: {order.total_price} so'm
+📦 Buyurtma raqami: #{order.id}
+🕐 Vaqti: {order.created_at.strftime('%Y-%m-%d %H:%M')}
+
+Mahsulotlar:
+"""
 
     for item in order.items.all():
-        text += f" - {item.product.name} x {item.quantity} = {item.price} so'm\n"
+        text += f"• {item.product_variant.name} x {item.quantity}\n"
 
-    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    url = f"https://api.telegram.org/bot{BOT_B_TOKEN}/sendMessage"
     payload = {
         "chat_id": chat_id,
-        "text": text
+        "text": text,
+        "parse_mode": "HTML"
     }
 
-    requests.post(url, data=payload)
+    response = requests.post(url, json=payload)
+    if response.status_code != 200:
+        print("Telegram xabar yuborishda xatolik:", response.text)
 
 
 class CreateOrderAPIView(APIView):
-    """
-    Create an order with the given items and address.
-    Request body should contain:
-    {
-        "items": [
-            {"product_id": 1, "quantity": 2},
-            {"product_id": 2, "quantity": 1}
-        ],
-        "address_id": 1,
-        "telegram_id": 1
-    }
-    """
 
     def post(self, request, *args, **kwargs):
         user = request.data.get('telegram_id')
