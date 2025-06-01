@@ -79,7 +79,7 @@ class ProductVariant(models.Model):
     volume = models.ForeignKey(ProductVolume, on_delete=models.SET_NULL, null=True, blank=True)
     taste = models.ForeignKey(ProductTaste, on_delete=models.SET_NULL, null=True, blank=True)
 
-    price = models.CharField(max_length=30, verbose_name="Asl narx (so'm)")
+    price = models.CharField(max_length=30, verbose_name="Asl narx (so'm)", null=True, blank=True)
     discount_price = models.CharField(max_length=30, blank=True, null=True,
                                       verbose_name="Chegirma narxi (so'm)")
     discount_percent = models.PositiveIntegerField(blank=True, null=True, verbose_name="Chegirma foizi (%)")
