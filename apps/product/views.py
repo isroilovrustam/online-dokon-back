@@ -161,10 +161,187 @@ class ProductListAPIView(ListAPIView):
         return Response(response.data, status=status.HTTP_200_OK)
 
 
+from rest_framework.generics import CreateAPIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.db import transaction
+from decimal import Decimal, InvalidOperation
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 class ProductCreateAPIView(CreateAPIView):
+    """
+    Creates a new product with images and variants from FormData.
+
+    Handles multipart form data with nested arrays for images and variants.
+    Expected FormData structure:
+    - Basic fields: shop, category, product_name_uz, etc.
+    - Images: images[0][image], images[1][image], etc.
+    - Variants: variants[0][color], variants[0][price], etc.
+    """
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
+    def create(self, request, *args, **kwargs):
+        """Handle product creation with images and variants from FormData"""
+        try:
+            with transaction.atomic():
+                logger.info("=== Starting product creation ===")
+                logger.info(f"Request data keys: {list(request.data.keys())}")
+                logger.info(f"Request files keys: {list(request.FILES.keys())}")
+
+                # Log all form data for debugging
+                for key, value in request.data.items():
+                    logger.info(f"Form data - {key}: {value}")
+
+                # Create product with basic data
+                product_data = self._extract_product_data(request.data)
+                logger.info(f"Extracted product data: {product_data}")
+
+                product_serializer = self.get_serializer(data=product_data)
+                product_serializer.is_valid(raise_exception=True)
+                product = product_serializer.save()
+
+                logger.info(f"Product created with ID: {product.id}")
+
+                # Handle images
+                images_created = self._create_product_images(request, product)
+                logger.info(f"Created {images_created} images")
+
+                # Handle variants
+                variants_created = self._create_product_variants(request.data, product)
+                logger.info(f"Created {variants_created} variants")
+
+                # Return success response with product details
+                response_serializer = ProductSerializer(product)
+                return Response({
+                    'success': True,
+                    'message': 'Product created successfully',
+                    'product': response_serializer.data
+                }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            logger.error(f"Unexpected error during product creation: {str(e)}")
+            return Response({
+                'success': False,
+                'error': 'An error occurred while creating the product',
+                'details': str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+    def _extract_product_data(self, data):
+        """Extract basic product fields from request data"""
+        prepayment = data.get('prepayment_amount', '')
+
+        # Convert prepayment to decimal if provided
+        prepayment_decimal = None
+        if prepayment and str(prepayment).strip():
+            try:
+                prepayment_decimal = Decimal(str(prepayment))
+            except (InvalidOperation, ValueError):
+                logger.warning(f"Invalid prepayment amount: {prepayment}")
+
+        return {
+            'shop': data.get('shop'),
+            'category': self._get_int_or_none(data, 'category'),
+            'product_name_uz': data.get('product_name_uz', ''),
+            'product_name_ru': data.get('product_name_ru', ''),
+            'description_uz': data.get('description_uz', ''),
+            'description_ru': data.get('description_ru', ''),
+            'prepayment_amount': prepayment_decimal
+        }
+
+    def _create_product_images(self, request, product):
+        """Create product images from FormData files"""
+        files = request.FILES
+        image_index = 0
+        images_created = 0
+
+        # Look for files with pattern images[0][image], images[1][image], etc.
+        while f'images[{image_index}][image]' in files:
+            try:
+                image_file = files[f'images[{image_index}][image]']
+                ProductImage.objects.create(
+                    product=product,
+                    image=image_file
+                )
+                images_created += 1
+                logger.info(f"Created image {image_index} for product {product.id}")
+            except Exception as e:
+                logger.error(f"Error creating image {image_index}: {str(e)}")
+
+            image_index += 1
+
+        return images_created
+
+    def _create_product_variants(self, data, product):
+        """Create product variants from FormData"""
+        variant_index = 0
+        variants_created = 0
+
+        # Look for variant data with pattern variants[0][field], variants[1][field], etc.
+        while f'variants[{variant_index}][price]' in data:
+            try:
+                variant_data = self._extract_variant_data(data, variant_index)
+                logger.info(f"Extracted variant {variant_index} data: {variant_data}")
+
+                # Create variant only if price is provided and valid
+                if variant_data['price'] is not None:
+                    ProductVariant.objects.create(product=product, **variant_data)
+                    variants_created += 1
+                    logger.info(f"Created variant {variant_index} for product {product.id}")
+                else:
+                    logger.warning(f"Skipping variant {variant_index} - no valid price")
+
+            except Exception as e:
+                logger.error(f"Error creating variant {variant_index}: {str(e)}")
+
+            variant_index += 1
+
+        return variants_created
+
+    def _extract_variant_data(self, data, index):
+        """Extract variant data for a specific index"""
+        return {
+            'color_id': self._get_int_or_none(data, f'variants[{index}][color]'),
+            'size_id': self._get_int_or_none(data, f'variants[{index}][size]'),
+            'volume_id': self._get_int_or_none(data, f'variants[{index}][volume]'),
+            'taste_id': self._get_int_or_none(data, f'variants[{index}][taste]'),
+            'price': self._get_decimal_or_none(data, f'variants[{index}][price]'),
+            'discount_price': self._get_decimal_or_none(data, f'variants[{index}][discount_price]'),
+            'discount_percent': self._get_int_or_none(data, f'variants[{index}][discount_percent]'),
+            'stock': self._get_int_or_none(data, f'variants[{index}][stock]', default=0),
+            'is_active': self._get_boolean(data, f'variants[{index}][is_active]', default=True)
+        }
+
+    def _get_int_or_none(self, data, key, default=None):
+        """Safely convert form data to integer"""
+        value = data.get(key)
+        if value and str(value).strip():
+            try:
+                return int(value)
+            except (ValueError, TypeError):
+                logger.warning(f"Invalid integer value for {key}: {value}")
+        return default
+
+    def _get_decimal_or_none(self, data, key, default=None):
+        """Safely convert form data to decimal"""
+        value = data.get(key)
+        if value and str(value).strip():
+            try:
+                return Decimal(str(value))
+            except (InvalidOperation, ValueError, TypeError):
+                logger.warning(f"Invalid decimal value for {key}: {value}")
+        return default
+
+    def _get_boolean(self, data, key, default=True):
+        """Safely convert form data to boolean"""
+
+        value = data.get(key, default)
+        if isinstance(value, str):
+            return value.lower() in ['true', '1', 'yes', 'on']
+        return bool(value)
 
 class ProductDetailView(RetrieveAPIView, UpdateAPIView, DestroyAPIView):
     queryset = Product.objects.all()
@@ -425,7 +602,7 @@ Mahsulotlar:
 """
 
     for item in order.items.all():
-        text += f"• {item.product_variant.name} x {item.quantity}\n"
+        text += f"• {item.product_variant.product.product_name_uz} x {item.quantity}\n"
 
     url = f"https://api.telegram.org/bot{BOT_B_TOKEN}/sendMessage"
     payload = {
@@ -460,32 +637,25 @@ class CreateOrderAPIView(APIView):
             user = BotUser.objects.get(telegram_id=user)
         except BotUser.DoesNotExist:
             return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
-        order = Order.objects.create(user=user, address=address, total_price=0)
+        order = Order.objects.create(user=user, address=address.full_address, total_price=0)
         shop = None
         total_price = 0
         for item in items:
-            product_id = item.get('product_id')
-            quantity = item.get('quantity', 1)
-
-            if not product_id or not isinstance(quantity, int) or quantity <= 0:
-                return Response({"detail": "Each item must have a valid product_id and quantity."},
-                                status=status.HTTP_400_BAD_REQUEST)
-
+            basket_id = item.get('basket_id')
             try:
-                product = Product.objects.get(pk=product_id, shop__is_active=True)
-                shop = product.shop
+                basket = Basket.objects.get(id=basket_id)
+                shop = basket.product_variant.product.shop
             except Product.DoesNotExist:
-                return Response({"detail": f"Product with ID {product_id} not found or inactive."},
+                return Response({"detail": f"Basket with ID {basket_id} not found or inactive."},
                                 status=status.HTTP_404_NOT_FOUND)
 
-            order_item = OrderItem.objects.create(
+            OrderItem.objects.create(
                 order=order,
-                product=product,
-                quantity=quantity,
-                price=product.price * quantity
+                product_variant=basket.product_variant,
+                quantity=basket.quantity,
             )
-            total_price += order_item.price
-
+            total_price += int(basket.product_variant.price) * basket.quantity
+            basket.delete()
         order.total_price = total_price
         order.save()
 

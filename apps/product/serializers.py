@@ -37,7 +37,6 @@ class ProductVolumeSerializer(serializers.ModelSerializer):
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
-    image = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = ProductImage
@@ -96,8 +95,7 @@ class ProductVariantGetSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    images = ProductImageSerializer(many=True, required=False)
-    variants = ProductVariantSerializer(many=True, required=False)
+    # variants = ProductVariantSerializer(many=True, required=False)
     shop = serializers.SlugRelatedField(
         queryset=Shop.objects.all(),
         slug_field='shop_code'
@@ -108,21 +106,8 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'shop', 'category', 'product_name_uz', 'product_name_ru',
             'description_uz', 'description_ru', 'created_at', 'updated_at',
-            'images', 'variants', 'prepayment_amount'
+            'prepayment_amount'
         ]
-
-    def create(self, validated_data):
-        images_data = validated_data.pop('images', [])
-        variants_data = validated_data.pop('variants', [])
-        product = Product.objects.create(**validated_data)
-
-        for image in images_data:
-            ProductImage.objects.create(product=product, **image)
-        for variant in variants_data:
-            print(variant)
-            ProductVariant.objects.create(product=product, **variant)
-        return product
-
 
 class ProductPatchSerializer(serializers.ModelSerializer):
     class Meta:

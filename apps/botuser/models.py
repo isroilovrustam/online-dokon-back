@@ -71,8 +71,9 @@ class Order(models.Model):
     ]
 
     user = models.ForeignKey(BotUser, on_delete=models.CASCADE, related_name='orders')  # Buyurtmachining o‘zi
-    longitude = models.FloatField()
-    latitude = models.FloatField()
+    longitude = models.FloatField(null=True, blank=True)
+    latitude = models.FloatField(null=True, blank=True)
+    address = models.CharField(max_length=255, null=True, blank=True)
     payment_type = models.CharField(max_length=20, choices=PAYMENT_TYPE, default='Naqd')
     reception_method = models.ForeignKey(ReceptionMethod, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
