@@ -97,7 +97,7 @@ class ProductVariantGetSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, required=False)
-    variants = ProductVariantSerializer(many=True)
+    variants = ProductVariantSerializer(many=True, required=False)
     shop = serializers.SlugRelatedField(
         queryset=Shop.objects.all(),
         slug_field='shop_code'
