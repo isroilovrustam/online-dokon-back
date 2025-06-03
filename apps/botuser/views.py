@@ -29,6 +29,7 @@ class BotUserRegisterView(APIView):
         last_name = serializer.validated_data.get('last_name')
         username = serializer.validated_data.get('telegram_username')
         language = serializer.validated_data.get('language', 'uz')
+        active_shop = serializer.validated_data.get('active_shop')
 
         # Telegram ID bo‘yicha foydalanuvchi borligini tekshirish
         if BotUser.objects.filter(telegram_id=telegram_id).exists():
@@ -41,6 +42,7 @@ class BotUserRegisterView(APIView):
         user.last_name = last_name
         user.telegram_username = username
         user.language = language
+        user.active_shop = active_shop
         user.save()
 
         return Response({"detail": "User registered successfully. Verification code sent."},
