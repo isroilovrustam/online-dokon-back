@@ -31,6 +31,7 @@ class ShopSerializer(serializers.ModelSerializer):
 
 class ShopGetSerializer(serializers.ModelSerializer):
     addresses = ShopGetAddressSerializer(many=True, required=False)
+    shop_logo = serializers.SerializerMethodField()  # Bu qo'shilishi kerak!
 
     class Meta:
         model = Shop
@@ -40,6 +41,10 @@ class ShopGetSerializer(serializers.ModelSerializer):
                   'telegram_channel', 'instagram_url',
                   'is_active', 'subscription_start', 'subscription_end', 'shop_type', 'addresses']
 
+    def get_shop_logo(self, obj):
+        if obj.shop_logo:
+            return f"media/{obj.shop_logo.name}"
+        return None
 
 class ShopCheckSerializer(serializers.ModelSerializer):
     is_active = serializers.BooleanField()
