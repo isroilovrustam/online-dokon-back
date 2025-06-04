@@ -11,6 +11,14 @@ class ProductCategorySerializer(serializers.ModelSerializer):
         model = ProductCategory
         fields = ["id", "name", "image", "shop"]
 
+    def get_image(self, obj):
+        # `media/` dan boshlab to‘liq nisbiy pathni olish
+        if obj.image:
+            return f"media/{obj.image.name}"
+        return None
+
+
+
 
 class ProductColorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -41,6 +49,12 @@ class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductImage
         fields = ['id', 'image', 'product']
+
+    def get_image(self, obj):
+        # `media/` dan boshlab to‘liq nisbiy pathni olish
+        if obj.image:
+            return f"media/{obj.image.name}"
+        return None
 
 
 class ProductVariantSerializer(serializers.ModelSerializer):
@@ -92,6 +106,8 @@ class ProductVariantGetSerializer(serializers.ModelSerializer):
             'price', 'discount_price', 'discount_percent',
             'stock', 'is_active', 'images', 'product_name', 'quantity'
         ]
+
+
 
 
 class ProductSerializer(serializers.ModelSerializer):
