@@ -20,7 +20,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 ALLOWED_HOSTS = ["*"]
 
 SWAGGER_SETTINGS = {
-    # 'DEFAULT_API_URL': 'https://market.abruis.uz',
+    'DEFAULT_API_URL': 'https://market.abruis.uz',
 }
 # Application definition
 
