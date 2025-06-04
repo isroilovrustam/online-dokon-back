@@ -7,6 +7,8 @@ from .models import ProductImage, ProductVariant, Product, ProductVolume, Produc
 
 
 class ProductCategorySerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = ProductCategory
         fields = ["id", "name", "image", "shop"]
@@ -16,8 +18,6 @@ class ProductCategorySerializer(serializers.ModelSerializer):
         if obj.image:
             return f"media/{obj.image.name}"
         return None
-
-
 
 
 class ProductColorSerializer(serializers.ModelSerializer):
@@ -45,6 +45,7 @@ class ProductVolumeSerializer(serializers.ModelSerializer):
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
 
     class Meta:
         model = ProductImage
@@ -108,8 +109,6 @@ class ProductVariantGetSerializer(serializers.ModelSerializer):
         ]
 
 
-
-
 class ProductSerializer(serializers.ModelSerializer):
     # variants = ProductVariantSerializer(many=True, required=False)
     shop = serializers.SlugRelatedField(
@@ -124,6 +123,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'description_uz', 'description_ru', 'created_at', 'updated_at',
             'prepayment_amount'
         ]
+
 
 class ProductPatchSerializer(serializers.ModelSerializer):
     class Meta:
