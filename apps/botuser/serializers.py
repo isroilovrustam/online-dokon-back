@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from shop.models import Shop
-from .models import BotUser, UserAddress, ReceptionMethod
+from .models import BotUser, UserAddress, ReceptionMethod, ReklamaBotUser
 
 
 class ReceptionMethodSerializer(serializers.ModelSerializer):
@@ -71,3 +71,20 @@ class ReklamaSerializer(serializers.Serializer):
     image = serializers.ImageField()
     link = serializers.CharField(allow_null=True, required=False)
     product_id = serializers.IntegerField(allow_null=True, required=False)
+
+    def get_image(self, obj):
+        # `media/` dan boshlab to‘liq nisbiy pathni olish
+        if obj.image:
+            return f"media/{obj.image.name}"
+        return None
+
+
+class ReklamaCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReklamaBotUser
+        fields = ["image", "product", "shop"]
+        extra_kwargs = {
+            'shop': {'read_only': True},
+        }
+
+

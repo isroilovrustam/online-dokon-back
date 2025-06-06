@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import BotUserRegisterView, BotUserDetailView, SetActiveShopAPIView, AddressDetailView, ReklamaListView, \
-    AddressCreateByTelegramView, ReceptionMethodListCreateAPIView, ReceptionMethodDetailAPIView
+    AddressCreateByTelegramView, ReceptionMethodListCreateAPIView, ReceptionMethodDetailAPIView, ReklamaCreateView, \
+    ReklamaDeleteView
 
 urlpatterns = [
     # registration
@@ -12,4 +13,6 @@ urlpatterns = [
     path("reklama/<str:shop_code>", ReklamaListView.as_view(), name="reklama-list"),
     path('reception-method/', ReceptionMethodListCreateAPIView.as_view),
     path('reception-method/<int:pk>/', ReceptionMethodDetailAPIView.as_view),
+    path('reklama/create/', ReklamaCreateView.as_view(), name='reklama-create'),
+    path('reklama/delete/<int:pk>/', ReklamaDeleteView.as_view(), name='reklama-delete'),
 ]

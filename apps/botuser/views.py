@@ -1,9 +1,13 @@
 from rest_framework import status, permissions, generics, viewsets
+from rest_framework.exceptions import ValidationError, PermissionDenied
+from rest_framework.generics import CreateAPIView, DestroyAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from shop.models import Shop
 from .models import BotUser, UserAddress, ReklamaBotUser, ReklamaAdmin, ReceptionMethod
 from .serializers import BotUserSerializer, SetActiveShopSerializer, ReklamaSerializer, UserAddressSerializer, \
-    ReceptionMethodSerializer
+    ReceptionMethodSerializer, ReklamaCreateSerializer
 
 
 class ReceptionMethodListCreateAPIView(generics.ListCreateAPIView):
@@ -127,3 +131,50 @@ class ReklamaListView(generics.ListAPIView):
         return Response(ls)
 
     lookup_url_kwarg = "shop_code"
+
+
+class ReklamaCreateView(CreateAPIView):
+    queryset = ReklamaBotUser.objects.all()
+    serializer_class = ReklamaCreateSerializer
+
+    def perform_create(self, serializer):
+        telegram_id = self.request.data.get('telegram_id')
+        if not telegram_id:
+            raise ValidationError({'telegram_id': 'required'})
+
+        try:
+            user = BotUser.objects.get(telegram_id=telegram_id)
+        except BotUser.DoesNotExist:
+            raise ValidationError({'telegram_id': 'User not found'})
+
+        try:
+            shop = Shop.objects.get(owner=user)
+        except Shop.DoesNotExist:
+            raise ValidationError({'shop': 'No shop found for this user.'})
+
+        serializer.save(shop=shop)
+
+
+class ReklamaDeleteView(DestroyAPIView):
+    queryset = ReklamaBotUser.objects.all()
+
+    def delete(self, request, *args, **kwargs):
+        telegram_id = request.data.get("telegram_id")
+        if not telegram_id:
+            raise ValidationError({'telegram_id': 'required'})
+
+        try:
+            user = BotUser.objects.get(telegram_id=telegram_id)
+        except BotUser.DoesNotExist:
+            raise ValidationError({'telegram_id': 'User not found'})
+
+        try:
+            shop = Shop.objects.get(owner=user)
+        except Shop.DoesNotExist:
+            raise ValidationError({'shop': 'No shop found for this user.'})
+
+        instance = self.get_object()
+        if instance.shop != shop:
+            raise PermissionDenied("Siz faqat o'zingizga tegishli reklamalarni o'chira olasiz.")
+
+        return self.destroy(request, *args, **kwargs)

@@ -5,7 +5,9 @@ from .views import ProductListAPIView, ProductDetailView, CreateBasketAPIView, D
     ProductTasteCreateAPIView, ProductVolumeCreateAPIView, ProductTasteListAPIView, ShopColorListAPIView, \
     ShopSizeListAPIView, ProductVolumeListAPIView, ProductCreateAPIView, ProductCategoryCreateAPIView, \
     ProductCategoryListAPIView, FavoriteProductDeleteAPIView, FavoriteListAPIView, BasketListAPIView, \
-    ProductColorListAPIView, ProductSizeListAPIView, UpdateBasketQuantityAPIView, ProductImageCreateView, ProductImageDeleteView, ProductVariantCreateView, ProductVariantDeleteView
+    ProductColorListAPIView, ProductSizeListAPIView, UpdateBasketQuantityAPIView, ProductImageCreateView, \
+    ProductImageDeleteView, ProductVariantCreateView, ProductVariantDeleteView, OrderUserListAPIView, \
+    OrderDetailAPIView, OrderListByShopCodeAPIView, OrderShopDetailAPIView, OrderStatusUpdateAPIView
 
 urlpatterns = [
     # path('basket/create/', CreateBasketAPIView.as_view(), name='create-basket'),
@@ -16,6 +18,11 @@ urlpatterns = [
     path('favorites/<str:shop_code>/<int:telegram_id>/', FavoriteListAPIView.as_view(), name='favorite-list'),
     path('favorites/<int:pk>/delete/', FavoriteProductDeleteAPIView.as_view(), name='favorite-product'),
     path('order/create/', CreateOrderAPIView.as_view(), name='create-order'),
+    path('orders/list/', OrderUserListAPIView.as_view(), name='user-orders'),
+    path('orders/', OrderListByShopCodeAPIView.as_view()),
+    path('orders/<int:pk>/', OrderShopDetailAPIView.as_view(), name='order-detail'),
+    path('orders/<int:pk>/update-status/', OrderStatusUpdateAPIView.as_view(), name='order-status-update'),
+    path('order/detail/<int:pk>/', OrderDetailAPIView.as_view()),
     path('color/create/', ProductColorCreateAPIView.as_view(), name='create-color'),
     path('category/create/', ProductCategoryCreateAPIView.as_view(), name='create-category'),
     path('size/create/', ProductSizeCreateAPIView.as_view(), name='create-size'),

@@ -1,6 +1,7 @@
 from django.db.models import Sum
 from rest_framework import serializers
-from botuser.models import FavoriteProduct
+from botuser.models import FavoriteProduct, Order, OrderItem
+from botuser.serializers import BotUserSerializer
 from shop.models import Basket, Shop
 from .models import ProductImage, ProductVariant, Product, ProductVolume, ProductSize, ProductTaste, ProductColor, \
     ProductCategory
@@ -165,3 +166,36 @@ class ProductGetSerializer(serializers.ModelSerializer):
             'description', 'created_at', 'updated_at',
             'images', 'variants', 'me_favorite', 'quantity', 'prepayment_amount'
         ]
+
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    product_variant = ProductVariantSerializer()
+
+    class Meta:
+        model = OrderItem
+        fields = ['id', 'product_variant', 'quantity']
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True)
+    user = BotUserSerializer(read_only=True)
+
+    class Meta:
+        model = Order
+        fields = [
+            'id', 'longitude', 'latitude', 'address',
+            'payment_type', 'reception_method', 'created_at',
+            'status', 'total_price', 'comment','user', 'items'
+        ]
+
+
+class OrderStatusUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['status']
+
+    def validate_status(self, value):
+        valid_statuses = [choice[0] for choice in Order.STATUS_CHOICES]
+        if value not in valid_statuses:
+            raise serializers.ValidationError("Invalid status value.")
+        return value

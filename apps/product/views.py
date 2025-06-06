@@ -1,8 +1,10 @@
 from django.db.models import Q
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
+
 from botuser.models import BotUser
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView, \
-    RetrieveUpdateDestroyAPIView
+    RetrieveUpdateDestroyAPIView, get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 import requests
@@ -11,8 +13,9 @@ from .models import Product, ProductColor, ProductTaste, ProductVolume, ProductS
     ProductImage
 from .serializers import ProductSerializer, ProductSizeSerializer, ProductVolumeSerializer, ProductColorSerializer, \
     ProductTasteSerializer, ProductCategorySerializer, ProductGetSerializer, ProductVariantSerializer, \
-    ProductImageSerializer, ProductPatchSerializer, ProductVariantPostSerializer
-from shop.models import Basket
+    ProductImageSerializer, ProductPatchSerializer, ProductVariantPostSerializer, OrderSerializer, \
+    OrderStatusUpdateSerializer
+from shop.models import Basket, Shop
 from botuser.models import FavoriteProduct, UserAddress, Order, OrderItem
 
 
@@ -343,6 +346,7 @@ class ProductCreateAPIView(CreateAPIView):
             return value.lower() in ['true', '1', 'yes', 'on']
         return bool(value)
 
+
 class ProductDetailView(RetrieveAPIView, UpdateAPIView, DestroyAPIView):
     queryset = Product.objects.all()
     lookup_field = 'pk'
@@ -666,6 +670,67 @@ class CreateOrderAPIView(APIView):
             print(f"Telegramga xabar yuborishda xatolik: {e}")
 
         return Response({"order_id": order.id, "total_price": order.total_price}, status=status.HTTP_201_CREATED)
+
+
+class OrderUserListAPIView(APIView):
+    def get(self, request, *args, **kwargs):
+        telegram_id = request.query_params.get('telegram_id')
+        if not telegram_id:
+            raise ValidationError({'telegram_id': 'required'})
+
+        user = get_object_or_404(BotUser, telegram_id=telegram_id)
+        orders = Order.objects.filter(user=user).order_by('-created_at')
+        serializer = OrderSerializer(orders, many=True)
+
+        return Response(serializer.data)
+
+
+class OrderDetailAPIView(RetrieveAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+
+    # lookup_field = 'id'  # Bu standart, `pk` ham bo‘lishi mumkin
+
+    def get(self, request, *args, **kwargs):
+        telegram_id = request.query_params.get('telegram_id')
+        if not telegram_id:
+            raise ValidationError({'telegram_id': 'required'})
+
+        user = get_object_or_404(BotUser, telegram_id=telegram_id)
+
+        order = self.get_object()
+        if order.user != user:
+            raise ValidationError({'detail': 'Siz faqat o`zingizning buyurtmangizni ko`rishingiz mumkin.'})
+
+        serializer = self.get_serializer(order)
+        return Response(serializer.data)
+
+
+class OrderListByShopCodeAPIView(APIView):
+    def get(self, request, *args, **kwargs):
+        shop_code = request.query_params.get('shop_code')
+        if not shop_code:
+            raise ValidationError({'shop_code': 'required'})
+
+        # Shopni aniqlaymiz
+        shop = get_object_or_404(Shop, shop_code=shop_code)
+
+        # Shopga tegishli barcha Orderlarni topamiz
+        orders = Order.objects.filter(items__product_variant__product__shop=shop).distinct().order_by('-created_at')
+
+        serializer = OrderSerializer(orders, many=True)
+        return Response(serializer.data)
+
+class OrderShopDetailAPIView(RetrieveAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    lookup_field = 'pk'
+
+
+class OrderStatusUpdateAPIView(UpdateAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderStatusUpdateSerializer
+    lookup_field = 'pk'
 
 
 class ProductImageCreateView(CreateAPIView):
