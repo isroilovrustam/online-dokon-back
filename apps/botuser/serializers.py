@@ -85,7 +85,7 @@ class ReklamaAdminSerializer(serializers.ModelSerializer):
 
     def get_image_url(self, obj):
         if obj.image:
-            return f"/media/{obj.image.name}"
+            return f"media/{obj.image.name}"
         return None
 
     def to_representation(self, instance):
