@@ -6,8 +6,8 @@ from rest_framework.views import APIView
 
 from shop.models import Shop
 from .models import BotUser, UserAddress, ReklamaBotUser, ReklamaAdmin, ReceptionMethod
-from .serializers import BotUserSerializer, SetActiveShopSerializer, ReklamaSerializer, UserAddressSerializer, \
-    ReceptionMethodSerializer, ReklamaCreateSerializer
+from .serializers import BotUserSerializer, SetActiveShopSerializer, UserAddressSerializer, \
+    ReceptionMethodSerializer, ReklamaCreateSerializer, ReklamaBotUserSerializer, ReklamaAdminSerializer
 
 
 class ReceptionMethodListCreateAPIView(generics.ListCreateAPIView):
@@ -117,20 +117,23 @@ class AddressCreateByTelegramView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ReklamaListView(generics.ListAPIView):
-    serializer_class = ReklamaSerializer
-
+class ReklamaListView(APIView):
     def get(self, request, *args, **kwargs):
-        qs = ReklamaBotUser.objects.filter(shop__shop_code=self.kwargs.get('shop_code'))
-        ls = list()
-        for i in qs:
-            ls.append(ReklamaSerializer(i).data)
-        qs = ReklamaAdmin.objects.all()
-        for i in qs:
-            ls.append(ReklamaSerializer(i).data)
-        return Response(ls)
+        shop_code = self.kwargs.get('shop_code')
 
-    lookup_url_kwarg = "shop_code"
+        # Faqat o‘sha shop uchun
+        shop_ads = ReklamaBotUser.objects.filter(shop__shop_code=shop_code)
+        shop_data = ReklamaBotUserSerializer(shop_ads, many=True).data
+        for item in shop_data:
+            item['type'] = 'shop'
+
+        # Barcha foydalanuvchilar uchun
+        global_ads = ReklamaAdmin.objects.all()
+        global_data = ReklamaAdminSerializer(global_ads, many=True).data
+        for item in global_data:
+            item['type'] = 'admin'
+
+        return Response(shop_data + global_data)
 
 
 class ReklamaCreateView(CreateAPIView):

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from shop.models import Shop
-from .models import BotUser, UserAddress, ReceptionMethod, ReklamaBotUser
+from .models import BotUser, UserAddress, ReceptionMethod, ReklamaBotUser, ReklamaAdmin
 
 
 class ReceptionMethodSerializer(serializers.ModelSerializer):
@@ -67,18 +67,6 @@ class SetActiveShopSerializer(serializers.Serializer):
         return user
 
 
-class ReklamaSerializer(serializers.Serializer):
-    image = serializers.ImageField()
-    link = serializers.CharField(allow_null=True, required=False)
-    product_id = serializers.IntegerField(allow_null=True, required=False)
-
-    def get_image(self, obj):
-        # `media/` dan boshlab to‘liq nisbiy pathni olish
-        if obj.image:
-            return f"media/{obj.image.name}"
-        return None
-
-
 class ReklamaCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReklamaBotUser
@@ -88,3 +76,38 @@ class ReklamaCreateSerializer(serializers.ModelSerializer):
         }
 
 
+class ReklamaAdminSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ReklamaAdmin
+        fields = ['id', 'image_url', 'link']  # ❌ 'type' ni bu yerga yozmang
+
+    def get_image_url(self, obj):
+        if obj.image:
+            return f"/media/{obj.image.name}"
+        return None
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['type'] = 'admin'
+        return data
+
+
+class ReklamaBotUserSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+    product_id = serializers.IntegerField(source='product.id')
+
+    class Meta:
+        model = ReklamaBotUser
+        fields = ['id', 'image_url', 'product_id']  # ❌ 'type' ni bu yerga yozmang
+
+    def get_image_url(self, obj):
+        if obj.image:
+            return f"/media/{obj.image.name}"
+        return None
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['type'] = 'shop'
+        return data
