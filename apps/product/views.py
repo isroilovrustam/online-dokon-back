@@ -705,21 +705,21 @@ class OrderDetailAPIView(RetrieveAPIView):
         serializer = self.get_serializer(order)
         return Response(serializer.data)
 
+def get_status_list():
+    return [{'key': key, 'label': label} for key, label in Order.STATUS_CHOICES]
 
 class OrderListByShopCodeAPIView(APIView):
     def get(self, request, *args, **kwargs):
         shop_code = request.query_params.get('shop_code')
         if not shop_code:
             raise ValidationError({'shop_code': 'required'})
-
-        # Shopni aniqlaymiz
         shop = get_object_or_404(Shop, shop_code=shop_code)
-
-        # Shopga tegishli barcha Orderlarni topamiz
         orders = Order.objects.filter(items__product_variant__product__shop=shop).distinct().order_by('-created_at')
-
         serializer = OrderSerializer(orders, many=True)
-        return Response(serializer.data)
+        return Response({
+            "orders": serializer.data,
+            "statuses": get_status_list()
+        })
 
 class OrderShopDetailAPIView(RetrieveAPIView):
     queryset = Order.objects.all()

@@ -170,10 +170,12 @@ class ProductGetSerializer(serializers.ModelSerializer):
 
 class OrderItemSerializer(serializers.ModelSerializer):
     product_variant = ProductVariantSerializer()
+    product_name = serializers.CharField(source='product_variant.product.product_name', read_only=True)
+
 
     class Meta:
         model = OrderItem
-        fields = ['id', 'product_variant', 'quantity']
+        fields = ['id', 'product_variant', 'quantity', 'product_name']
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -185,7 +187,7 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'longitude', 'latitude', 'address',
             'payment_type', 'reception_method', 'created_at',
-            'status', 'total_price', 'comment','user', 'items'
+            'status', 'total_price', 'comment', 'user', 'items'
         ]
 
 
