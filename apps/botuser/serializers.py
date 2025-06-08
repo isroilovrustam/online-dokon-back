@@ -19,6 +19,7 @@ class UserAddressSerializer(serializers.ModelSerializer):
 class BotUserSerializer(serializers.ModelSerializer):
     addresses = UserAddressSerializer(many=True, required=False)
     active_shop = serializers.SerializerMethodField()
+    is_owner = serializers.SerializerMethodField()  # Qo‘shimcha maydon
 
     def get_active_shop(self, obj):
         if obj.active_shop is not None:
@@ -31,10 +32,16 @@ class BotUserSerializer(serializers.ModelSerializer):
             }
         return None
 
+    def get_is_owner(self, obj):
+        # Foydalanuvchi active_shop'ining egasimi yoki yo‘qmi
+        if obj.active_shop and obj.active_shop.owner == obj:
+            return True
+        return False
+
     class Meta:
         model = BotUser
         fields = ["user_roles", "active_shop", "phone_number", "telegram_id", "first_name",
-                  "last_name", "telegram_username", "language", 'addresses']
+                  "last_name", "telegram_username", "language", 'addresses', 'is_owner']
 
 
 class SetActiveShopSerializer(serializers.Serializer):
