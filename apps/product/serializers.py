@@ -148,27 +148,15 @@ class ProductPatchSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         quantity = validated_data.pop('quantity', None)
         variant_id = validated_data.pop('variant_id', None)
-        user = self.context.get('user')  # get_serializer_context orqali keladi
+        user = self.context.get('user')
 
-        if quantity is not None and user:
-            # from shop.models import Basket
-
-            variant = None
-            # 1. Agar variant_id yuborilgan bo‘lsa, uni olishga harakat qilamiz
-            if variant_id:
-                variant = ProductVariant.objects.filter(id=variant_id, product=instance).first()
-
-            # 2. Aks holda, agar faqat bitta variant bo‘lsa, uni avtomatik tanlaymiz
-            elif ProductVariant.objects.filter(product=instance).count() == 1:
-                variant = ProductVariant.objects.filter(product=instance).first()
-
-            # 3. Agar variant topilsa, Basketni yangilaymiz
+        if quantity is not None and variant_id and user:
+            variant = ProductVariant.objects.filter(id=variant_id, product=instance).first()
             if variant:
                 basket, _ = Basket.objects.get_or_create(user=user, product_variant=variant)
                 basket.quantity = quantity
                 basket.save()
 
-        # Asosiy Product update qilinadi
         return super().update(instance, validated_data)
 
 
