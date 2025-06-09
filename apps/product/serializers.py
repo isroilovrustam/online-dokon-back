@@ -8,11 +8,9 @@ from .models import ProductImage, ProductVariant, Product, ProductVolume, Produc
 
 
 class ProductCategorySerializer(serializers.ModelSerializer):
-
     class Meta:
         model = ProductCategory
-        fields = ["id", "name", "image", "shop" ]
-
+        fields = ["id", "name", "image", "shop"]
 
 
 class ProductGetCategorySerializer(serializers.ModelSerializer):
@@ -20,7 +18,7 @@ class ProductGetCategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductCategory
-        fields = ["id", "name", "image", "shop" ]
+        fields = ["id", "name", "image", "shop"]
 
     def get_image(self, obj):
         if obj.image:
@@ -153,10 +151,16 @@ class ProductPatchSerializer(serializers.ModelSerializer):
         if quantity is not None and variant_id and user:
             variant = ProductVariant.objects.filter(id=variant_id, product=instance).first()
             if variant:
-                basket, _ = Basket.objects.get_or_create(user=user, product_variant=variant)
-                basket.quantity = quantity
-                basket.save()
+                if quantity == 0:
+                    # 🔴 Miqdor 0 bo‘lsa – savatdan o‘chirish
+                    Basket.objects.filter(user=user, product_variant=variant).delete()
+                else:
+                    # ✅ Aks holda yangilash yoki yaratish
+                    basket, _ = Basket.objects.get_or_create(user=user, product_variant=variant)
+                    basket.quantity = quantity
+                    basket.save()
 
+        # Boshqa maydonlar ham yangilanadi (agar mavjud bo‘lsa)
         return super().update(instance, validated_data)
 
 
