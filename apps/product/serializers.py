@@ -12,7 +12,7 @@ class ProductCategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductCategory
-        fields = ["id", "name", "image", "shop"]
+        fields = ["id", "name", "image", "shop" ]
 
     # def get_image(self, obj):
     #     # `media/` dan boshlab to‘liq nisbiy pathni olish
