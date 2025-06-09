@@ -23,8 +23,9 @@ class ShopSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Shop
-        fields = ['owner', 'shop_name', 'shop_name_uz', 'shop_name_ru', 'phone_number', 'shop_code', 'description_uz',
-                  'description_ru', 'description', 'shop_logo', 'telegram_group',
+        fields = ['owner', 'shop_name', 'shop_name_uz', 'shop_name_ru', 'phone_number', 'shop_code', 'description',
+                  'description_uz',
+                  'description_ru', 'shop_logo', 'telegram_group',
                   'telegram_channel', 'instagram_url', 'is_active', 'subscription_start', 'subscription_end',
                   'shop_type', 'addresses']
 
@@ -35,8 +36,9 @@ class ShopGetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Shop
-        fields = ['owner', 'shop_name', 'shop_name_uz', 'shop_name_ru', 'phone_number', 'shop_code', 'description_uz',
-                  'description_ru', 'description',
+        fields = ['owner', 'shop_name', 'shop_name_uz', 'shop_name_ru', 'phone_number', 'shop_code', 'description',
+                  'description_uz',
+                  'description_ru',
                   'shop_logo', 'telegram_group',
                   'telegram_channel', 'instagram_url',
                   'is_active', 'subscription_start', 'subscription_end', 'shop_type', 'addresses']
@@ -45,6 +47,7 @@ class ShopGetSerializer(serializers.ModelSerializer):
         if obj.shop_logo:
             return f"media/{obj.shop_logo.name}"
         return None
+
 
 class ShopCheckSerializer(serializers.ModelSerializer):
     is_active = serializers.BooleanField()
@@ -69,7 +72,6 @@ class BasketSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Foydalanuvchi topilmadi.")
 
         return Basket.objects.create(user=user, **validated_data)
-
 
 
 class BasketPathSerializer(serializers.ModelSerializer):
