@@ -14,7 +14,7 @@ from .models import Product, ProductColor, ProductTaste, ProductVolume, ProductS
 from .serializers import ProductSerializer, ProductSizeSerializer, ProductVolumeSerializer, ProductColorSerializer, \
     ProductTasteSerializer, ProductCategorySerializer, ProductGetSerializer, ProductVariantSerializer, \
     ProductImageSerializer, ProductPatchSerializer, ProductVariantPostSerializer, OrderSerializer, \
-    OrderStatusUpdateSerializer
+    OrderStatusUpdateSerializer, ProductGetCategorySerializer
 from shop.models import Basket, Shop
 from botuser.models import FavoriteProduct, UserAddress, Order, OrderItem
 
@@ -114,7 +114,7 @@ class ProductTasteListAPIView(ListAPIView):
 
 
 class ProductCategoryListAPIView(ListAPIView):
-    serializer_class = ProductCategorySerializer
+    serializer_class = ProductGetCategorySerializer
 
     def get_queryset(self):
         return ProductCategory.objects.filter(shop__shop_code=self.kwargs['shop_code'])

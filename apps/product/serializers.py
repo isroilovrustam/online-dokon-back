@@ -8,17 +8,24 @@ from .models import ProductImage, ProductVariant, Product, ProductVolume, Produc
 
 
 class ProductCategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ProductCategory
+        fields = ["id", "name", "image", "shop" ]
+
+
+
+class ProductGetCategorySerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
 
     class Meta:
         model = ProductCategory
         fields = ["id", "name", "image", "shop" ]
 
-    # def get_image(self, obj):
-    #     # `media/` dan boshlab to‘liq nisbiy pathni olish
-    #     if obj.image:
-    #         return f"media/{obj.image.name}"
-    #     return None
+    def get_image(self, obj):
+        if obj.image:
+            return f"media/{obj.image.name}"
+        return None
 
 
 class ProductColorSerializer(serializers.ModelSerializer):
