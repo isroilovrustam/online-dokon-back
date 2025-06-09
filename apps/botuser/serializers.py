@@ -25,7 +25,8 @@ class BotUserSerializer(serializers.ModelSerializer):
         if obj.active_shop is not None:
             return {
                 "shop_code": obj.active_shop.shop_code,
-                "shop_name": obj.active_shop.shop_name,
+                "shop_name_uz": obj.active_shop.shop_name_uz,
+                "shop_name_ru": obj.active_shop.shop_name_ru,
                 "is_active": obj.active_shop.is_active,
                 "group_id": obj.active_shop.telegram_group,
                 "phone_number": obj.active_shop.phone_number,
