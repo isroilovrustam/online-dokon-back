@@ -127,12 +127,42 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class ProductPatchSerializer(serializers.ModelSerializer):
+    quantity = serializers.IntegerField(write_only=True, required=False, min_value=0)
+    variant_id = serializers.IntegerField(write_only=True, required=False)
+
     class Meta:
         model = Product
         fields = [
             'shop', 'category', 'product_name_uz', 'product_name_ru',
-            'description_uz', 'description_ru', 'prepayment_amount',
+            'description_uz', 'description_ru', 'prepayment_amount', 'quantity',
+            'variant_id'
         ]
+
+    def update(self, instance, validated_data):
+        quantity = validated_data.pop('quantity', None)
+        variant_id = validated_data.pop('variant_id', None)
+        user = self.context.get('user')  # get_serializer_context orqali keladi
+
+        if quantity is not None and user:
+            # from shop.models import Basket
+
+            variant = None
+            # 1. Agar variant_id yuborilgan bo‘lsa, uni olishga harakat qilamiz
+            if variant_id:
+                variant = ProductVariant.objects.filter(id=variant_id, product=instance).first()
+
+            # 2. Aks holda, agar faqat bitta variant bo‘lsa, uni avtomatik tanlaymiz
+            elif ProductVariant.objects.filter(product=instance).count() == 1:
+                variant = ProductVariant.objects.filter(product=instance).first()
+
+            # 3. Agar variant topilsa, Basketni yangilaymiz
+            if variant:
+                basket, _ = Basket.objects.get_or_create(user=user, product_variant=variant)
+                basket.quantity = quantity
+                basket.save()
+
+        # Asosiy Product update qilinadi
+        return super().update(instance, validated_data)
 
 
 class ProductGetSerializer(serializers.ModelSerializer):
@@ -170,7 +200,6 @@ class ProductGetSerializer(serializers.ModelSerializer):
 
 class OrderItemSerializer(serializers.ModelSerializer):
     product_variant = ProductVariantGetSerializer()
-
 
     class Meta:
         model = OrderItem
