@@ -14,6 +14,13 @@ class ReceptionMethodListCreateAPIView(generics.ListCreateAPIView):
     queryset = ReceptionMethod.objects.all()
     serializer_class = ReceptionMethodSerializer
 
+    def get_queryset(self):
+        shop_id = self.request.query_params.get('shop_id')
+        queryset = ReceptionMethod.objects.all()
+        if shop_id:
+            queryset = queryset.filter(shop_id=shop_id)
+        return queryset
+
 
 class ReceptionMethodDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ReceptionMethod.objects.all()
