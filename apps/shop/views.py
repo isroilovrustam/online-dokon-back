@@ -24,6 +24,7 @@ class BasketListView(ListAPIView):
 class BasketUpdateView(UpdateAPIView, DestroyAPIView):
     queryset = Basket.objects.all()
     serializer_class = BasketPathSerializer
+    lookup_field = 'pk'
 
 
 class ShopListAPIView(ListAPIView):
