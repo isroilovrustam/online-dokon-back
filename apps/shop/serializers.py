@@ -77,7 +77,7 @@ class BasketSerializer(serializers.ModelSerializer):
 class BasketPathSerializer(serializers.ModelSerializer):
     class Meta:
         model = Basket
-        fields = ['quantity']
+        fields = ['quantity', ]
 
 
 class BasketGetSerializer(serializers.ModelSerializer):

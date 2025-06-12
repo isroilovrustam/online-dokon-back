@@ -1,6 +1,4 @@
-from django.http import Http404
-from rest_framework.generics import ListAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView, GenericAPIView
-from rest_framework.mixins import UpdateModelMixin, DestroyModelMixin
+from rest_framework.generics import ListAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
@@ -23,24 +21,9 @@ class BasketListView(ListAPIView):
                                      shop__shop_code=self.kwargs['shop_code'])
 
 
-class BasketUpdateView(UpdateModelMixin, DestroyModelMixin, GenericAPIView):
+class BasketUpdateView(UpdateAPIView, DestroyAPIView):
     queryset = Basket.objects.all()
     serializer_class = BasketPathSerializer
-
-    def get_object(self):
-        basket_id = self.kwargs.get('basket_id')
-        product_id = self.kwargs.get('product_id')
-
-        try:
-            return Basket.objects.get(id=basket_id, product_variant_id=product_id)
-        except Basket.DoesNotExist:
-            raise Http404("Basket item not found")
-
-    def patch(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
-
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
 
 
 class ShopListAPIView(ListAPIView):
