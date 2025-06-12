@@ -1,3 +1,4 @@
+from django.http import Http404
 from rest_framework.generics import ListAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -24,8 +25,14 @@ class BasketListView(ListAPIView):
 class BasketUpdateView(UpdateAPIView, DestroyAPIView):
     queryset = Basket.objects.all()
     serializer_class = BasketPathSerializer
-    lookup_field = 'id'  # modeldagi field nomi
-    lookup_url_kwarg = 'basket_id'  # URLdagi nom
+
+    def get_object(self):
+        product_variant_id = self.kwargs.get('product_variant_id')
+        user = self.request.user  # yoki request.data dan olingan user_id
+        try:
+            return Basket.objects.get(user=user, product_variant_id=product_variant_id)
+        except Basket.DoesNotExist:
+            raise Http404("Basket item not found for this user and product.")
 
 
 class ShopListAPIView(ListAPIView):
