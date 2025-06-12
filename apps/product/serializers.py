@@ -50,6 +50,14 @@ class ProductVolumeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class ProductCreateImageSerializer(serializers.ModelSerializer):
+    # image = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ProductImage
+        fields = ['id', 'image', 'product']
+
+
 class ProductImageSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
 
@@ -57,7 +65,11 @@ class ProductImageSerializer(serializers.ModelSerializer):
         model = ProductImage
         fields = ['id', 'image', 'product']
 
-
+    def get_image(self, obj):
+        # `media/` dan boshlab to‘liq nisbiy pathni olish
+        if obj.image:
+            return f"media/{obj.image.name}"
+        return None
 
 
 class ProductVariantSerializer(serializers.ModelSerializer):

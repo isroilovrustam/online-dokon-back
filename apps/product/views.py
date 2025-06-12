@@ -14,7 +14,7 @@ from .models import Product, ProductColor, ProductTaste, ProductVolume, ProductS
 from .serializers import ProductSerializer, ProductSizeSerializer, ProductVolumeSerializer, ProductColorSerializer, \
     ProductTasteSerializer, ProductCategorySerializer, ProductGetSerializer, ProductVariantSerializer, \
     ProductImageSerializer, ProductPatchSerializer, ProductVariantPostSerializer, OrderSerializer, \
-    OrderStatusUpdateSerializer, ProductGetCategorySerializer
+    OrderStatusUpdateSerializer, ProductGetCategorySerializer, ProductCreateImageSerializer
 from shop.models import Basket, Shop
 from botuser.models import FavoriteProduct, UserAddress, Order, OrderItem
 
@@ -753,7 +753,7 @@ class ProductImageCreateView(CreateAPIView):
 
 class ProductImageDeleteView(DestroyAPIView):
     queryset = ProductImage.objects.all()
-    serializer_class = ProductImageSerializer
+    serializer_class = ProductCreateImageSerializer
 
 
 class ProductVariantCreateView(CreateAPIView):
