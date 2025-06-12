@@ -626,24 +626,33 @@ class CreateOrderAPIView(APIView):
         user = request.data.get('telegram_id')
         items = request.data.get('items')  # List of items with product_id and quantity
         address_id = request.data.get('address_id')
-
+        total_price = request.data.get('total_price')
         if not items or not isinstance(items, list):
             return Response({"detail": "Items are required and must be a list."}, status=status.HTTP_400_BAD_REQUEST)
 
         if not address_id:
             return Response({"detail": "Address ID is required."}, status=status.HTTP_400_BAD_REQUEST)
 
+        if total_price is None:
+            return Response({"detail": "total_price is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # total_price validatsiyasi
+        try:
+            total_price = float(total_price)
+        except (TypeError, ValueError):
+            return Response({"detail": "Total price must be a valid number."}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
             address = UserAddress.objects.get(pk=address_id, user=user)
         except UserAddress.DoesNotExist:
             return Response({"detail": "Address not found."}, status=status.HTTP_404_NOT_FOUND)
+
         try:
             user = BotUser.objects.get(telegram_id=user)
         except BotUser.DoesNotExist:
             return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
         order = Order.objects.create(user=user, address=address.full_address, total_price=0)
         shop = None
-        total_price = 0
         for item in items:
             basket_id = item.get('basket_id')
             try:
@@ -658,7 +667,7 @@ class CreateOrderAPIView(APIView):
                 product_variant=basket.product_variant,
                 quantity=basket.quantity,
             )
-            total_price += int(basket.product_variant.price) * basket.quantity
+            # total_price += int(basket.product_variant.price) * basket.quantity
             basket.delete()
         order.total_price = total_price
         order.save()
@@ -679,7 +688,8 @@ class OrderUserListAPIView(APIView):
             raise ValidationError({'telegram_id': 'required'})
 
         user = get_object_or_404(BotUser, telegram_id=telegram_id)
-        orders = Order.objects.filter(user=user, items__product_variant__product__shop=user.active_shop).order_by('-created_at')
+        orders = Order.objects.filter(user=user, items__product_variant__product__shop=user.active_shop).order_by(
+            '-created_at')
         serializer = OrderSerializer(orders, many=True)
 
         return Response(serializer.data)
@@ -705,8 +715,10 @@ class OrderDetailAPIView(RetrieveAPIView):
         serializer = self.get_serializer(order)
         return Response(serializer.data)
 
+
 def get_status_list():
     return [{'key': key, 'label': label} for key, label in Order.STATUS_CHOICES]
+
 
 class OrderListByShopCodeAPIView(APIView):
     def get(self, request, *args, **kwargs):
@@ -720,6 +732,7 @@ class OrderListByShopCodeAPIView(APIView):
             "orders": serializer.data,
             "statuses": get_status_list()
         })
+
 
 class OrderShopDetailAPIView(RetrieveAPIView):
     queryset = Order.objects.all()
