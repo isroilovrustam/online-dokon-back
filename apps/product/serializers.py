@@ -18,7 +18,7 @@ class ProductGetCategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductCategory
-        fields = ["id", "name", "image", "shop"]
+        fields = ["id", "name", "name_uz", "name_ru", "image", "shop"]
 
     def get_image(self, obj):
         if obj.image:
@@ -57,11 +57,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
         model = ProductImage
         fields = ['id', 'image', 'product']
 
-    def get_image(self, obj):
-        # `media/` dan boshlab to‘liq nisbiy pathni olish
-        if obj.image:
-            return f"media/{obj.image.name}"
-        return None
+
 
 
 class ProductVariantSerializer(serializers.ModelSerializer):
