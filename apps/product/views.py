@@ -748,12 +748,12 @@ class OrderStatusUpdateAPIView(UpdateAPIView):
 
 class ProductImageCreateView(CreateAPIView):
     queryset = ProductImage.objects.all()
-    serializer_class = ProductImageSerializer
+    serializer_class = ProductCreateImageSerializer
 
 
 class ProductImageDeleteView(DestroyAPIView):
     queryset = ProductImage.objects.all()
-    serializer_class = ProductCreateImageSerializer
+    serializer_class = ProductImageSerializer
 
 
 class ProductVariantCreateView(CreateAPIView):
