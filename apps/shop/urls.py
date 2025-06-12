@@ -7,7 +7,7 @@ urlpatterns = [
     path('list/', ShopListAPIView.as_view(), name="shop-list"),
     path('detail/<str:shop_code>/', ShopDetailAPIView.as_view(), name="shop-detail"),
     path('address/<int:pk>/delete/', ShopAddressDeleteAPIView.as_view(), name='shop-address-delete'),
-    path('basket/', BasketCreateView.as_view(), name="basket"),
-    path('basket/<int:telegram_id>/<str:shop_code>/', BasketListView.as_view(), name="basket"),
-    path('basket/<int:pk>/', BasketUpdateView.as_view(), name="basket"),
+    path('basket/', BasketCreateView.as_view(), name="basket-create"),
+    path('basket/<int:telegram_id>/<str:shop_code>/', BasketListView.as_view(), name="basket-list"),
+    path('basket/<int:basket_id>/<int:product_id>/', BasketUpdateView.as_view(), name="basket-update"),
 ]
