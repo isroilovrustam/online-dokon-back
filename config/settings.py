@@ -138,4 +138,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-BOT_B_TOKEN = "7344508226:AAGsyYTRO3wMuopJfqUR-pyBz7B-12yIo8w"
+BOT_B_TOKEN = "8007229444:AAHqMlli9iVOJXiB4DPQbkxBKbBfqyNOHdE"
