@@ -35,6 +35,15 @@ class BasketUpdateView(UpdateAPIView, DestroyAPIView):
             raise Http404("Basket item not found with given basket_id and product_id")
 
 
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class ShopListAPIView(ListAPIView):
     serializer_class = ShopGetSerializer
     queryset = Shop.objects.all()
