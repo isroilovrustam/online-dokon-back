@@ -1,7 +1,9 @@
+from django.contrib.sites import requests
 from django.db.models import Sum
 from rest_framework import serializers
 from botuser.models import FavoriteProduct, Order, OrderItem
 from botuser.serializers import BotUserSerializer
+from config.settings import BOT_B_TOKEN
 from shop.models import Basket, Shop
 from .models import ProductImage, ProductVariant, Product, ProductVolume, ProductSize, ProductTaste, ProductColor, \
     ProductCategory
@@ -263,3 +265,43 @@ class OrderStatusUpdateSerializer(serializers.ModelSerializer):
         if value not in valid_statuses:
             raise serializers.ValidationError("Invalid status value.")
         return value
+
+
+    def update(self, instance, validated_data):
+        old_status = instance.status
+        new_status = validated_data.get('status')
+
+        # Update the status
+        instance.status = new_status
+        instance.save()
+
+        # Send Telegram message if status changed
+        if old_status != new_status:
+            self.send_status_update_message(instance)
+
+        return instance
+
+    def send_status_update_message(self, order):
+        user = order.user
+        chat_id = user.telegram_id  # User modelda telegram_id maydon bo‘lishi kerak
+        status_text = dict(Order.STATUS_CHOICES).get(order.status, order.status)
+
+        text = f"""
+📦 <b>Sizning buyurtmangiz yangilandi!</b>
+
+🧾 Buyurtma raqami: #{order.id}
+📍 Manzil: {order.address}
+🆕 Yangi holat: <b>{status_text}</b>
+        """
+
+        url = f"https://api.telegram.org/bot{BOT_B_TOKEN}/sendMessage"
+        payload = {
+            "chat_id": chat_id,
+            "text": text,
+            "parse_mode": "HTML"
+        }
+
+        try:
+            requests.post(url, json=payload)
+        except Exception as e:
+            print(f"Telegramga xabar yuborishda xatolik: {e}")
