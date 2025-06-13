@@ -1,4 +1,5 @@
-from rest_framework.generics import ListAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView, \
+    RetrieveUpdateDestroyAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
@@ -21,12 +22,21 @@ class BasketListView(ListAPIView):
                                      shop__shop_code=self.kwargs['shop_code'])
 
 
-class BasketUpdateView(UpdateAPIView, DestroyAPIView):
+class BasketUpdateView(RetrieveUpdateDestroyAPIView):
     queryset = Basket.objects.all()
     serializer_class = BasketPathSerializer
     lookup_field = 'id'  # modeldagi field nomi
     lookup_url_kwarg = 'basket_id'  # URLdagi nom
 
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        new_quantity = request.data.get('quantity')
+
+        if new_quantity is not None and int(new_quantity) == 0:
+            instance.delete()
+            return Response({"detail": "Mahsulot savatchadan o‘chirildi."}, status=status.HTTP_204_NO_CONTENT)
+
+        return super().update(request, *args, **kwargs)
 
 
 class ShopListAPIView(ListAPIView):
