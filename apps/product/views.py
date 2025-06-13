@@ -688,7 +688,7 @@ class OrderUserListAPIView(APIView):
             raise ValidationError({'telegram_id': 'required'})
 
         user = get_object_or_404(BotUser, telegram_id=telegram_id)
-        orders = Order.objects.filter(user=user, items__product_variant__product__shop=user.active_shop).order_by(
+        orders = Order.objects.filter(user=user, items__product_variant__product__shop=user.active_shop).distinct().order_by(
             '-created_at')
         serializer = OrderSerializer(orders, many=True)
 
