@@ -606,7 +606,7 @@ Mahsulotlar:
 """
 
     for item in order.items.all():
-        text += f"• {item.product_variant.product.product_name_uz} x {item.quantity}\n {item.product_variant.product.color.name} - {item.product_variant.product.size.name}\n"
+        text += f"• {item.product_variant.product.product_name_uz} x {item.quantity}\n"
 
     url = f"https://api.telegram.org/bot{BOT_B_TOKEN}/sendMessage"
     payload = {
