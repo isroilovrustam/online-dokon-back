@@ -606,41 +606,8 @@ Mahsulotlar:
 """
 
     for item in order.items.all():
-        text += f"• {item.product_variant.product.product_name_uz} x {item.quantity}\nRangi: {item.product_variant.product.color.name}  Razmeri: {item.product_variant.product.size.name}\n"
+        text += f"• {item.product_variant.product.product_name_uz} x {item.quantity}\n {item.product_variant.product.color.name} - {item.product_variant.product.size.name}\n"
 
-    url = f"https://api.telegram.org/bot{BOT_B_TOKEN}/sendMessage"
-    payload = {
-        "chat_id": chat_id,
-        "text": text,
-        "parse_mode": "HTML"
-    }
-
-    response = requests.post(url, json=payload)
-    if response.status_code != 200:
-        print("Telegram xabar yuborishda xatolik:", response.text)
-
-
-def send_telegram_user_message(shop, order):
-    chat_id = order.user.telegram_id  # bu joyda group chat ID yoki username bo'lishi mumkin
-
-    if not chat_id:
-        print("Do'konning Telegram guruhi belgilanmagan.")
-        return
-
-    text = f"""
-🛒 <b>Yangi zakaz!</b>
-
-👤 Buyurtmachi: {order.user.full_name}
-📍 Manzil: {order.address}
-💵 Narxi: {order.total_price} so'm
-📦 Buyurtma raqami: #{order.id}
-🕐 Vaqti: {order.created_at.strftime('%Y-%m-%d %H:%M')}
-
-Mahsulotlar:
-"""
-
-    for item in order.items.all():
-        text += f"• {item.product_variant.product.product_name_uz} x {item.quantity}\nRangi: {item.product_variant.product.color.name}  Razmeri: {item.product_variant.product.size.name}\n"
     url = f"https://api.telegram.org/bot{BOT_B_TOKEN}/sendMessage"
     payload = {
         "chat_id": chat_id,
@@ -710,11 +677,6 @@ class CreateOrderAPIView(APIView):
             send_telegram_order_message(shop, order)
         except Exception as e:
             print(f"Telegramga xabar yuborishda xatolik: {e}")
-
-        try:
-            send_telegram_user_message(shop, order)
-        except Exception as e:
-            print(f"Telegramga foydalanuvchiga xabar yuborishda xatolik: {e}")
 
         return Response({"order_id": order.id, "total_price": order.total_price}, status=status.HTTP_201_CREATED)
 
