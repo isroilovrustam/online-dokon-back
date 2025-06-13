@@ -19,7 +19,7 @@ class BasketListView(ListAPIView):
 
     def get_queryset(self):
         return Basket.objects.filter(user__telegram_id=self.kwargs['telegram_id'],
-                                     shop__shop_code=self.kwargs['shop_code'])
+                                     shop__shop_code=self.kwargs['shop_code']).order_by('-created_at')
 
 
 class BasketUpdateView(RetrieveUpdateDestroyAPIView):
