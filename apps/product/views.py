@@ -596,11 +596,11 @@ def send_telegram_order_message(shop, order):
     text = f"""
 🛒 <b>Yangi zakaz!</b>
 
-👤 Buyurtmachi: {order.user.full_name}
-📍 Manzil: {order.address}
-💵 Narxi: {order.total_price} so'm
-📦 Buyurtma raqami: #{order.id}
-🕐 Vaqti: {order.created_at.strftime('%Y-%m-%d %H:%M')}
+👤 <b>Buyurtmachi: </b> {order.user.full_name}
+📍 <b>Manzil:</b> {order.address}
+💵 <b>Umumiy narx:</b> <b>{order.total_price} so'm</b>
+🧾 <b>Buyurtma raqami:</b> <code>#{order.id}</code>
+🕒 <b>Buyurtma vaqti:</b> {order.created_at.strftime('%Y-%m-%d')}
 
 Mahsulotlar:
 """
@@ -634,12 +634,12 @@ def send_telegram_user_message(order):
 👤 <b>F.I.O:</b> {order.user.full_name}
 📍 <b>Manzil:</b> {order.address}
 💵 <b>Umumiy narx:</b> <b>{order.total_price} so'm</b>
-🕒 <b>Buyurtma vaqti:</b> {order.created_at.strftime('%Y-%m-%d %H:%M')}
+🕒 <b>Buyurtma vaqti:</b> {order.created_at.strftime('%Y-%m-%d')}
 
 📦 <b>Mahsulotlar:</b>
-    """
+"""
     for item in order.items.all():
-        text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b>\n"
+        text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b>\n{item.product_variant.color.color}\n - {item.product_variant.size.size}"
     text += "\n📬 <i>Buyurtmangiz tez orada yetkaziladi. Biz bilan bo‘lganingiz uchun rahmat!</i> 🙏"
 
     url = f"https://api.telegram.org/bot{BOT_B_TOKEN}/sendMessage"
