@@ -620,6 +620,41 @@ Mahsulotlar:
         print("Telegram xabar yuborishda xatolik:", response.text)
 
 
+def send_telegram_user_message(order):
+    user = order.user
+    if not user.telegram_id:
+        print("Foydalanuvchining Telegram ID si mavjud emas.")
+        return
+
+    chat_id = user.telegram_id  # bu joyda group chat ID yoki username bo'lishi mumkin
+    text = f"""
+🛒 <b>Yangi zakaz!</b>
+
+👤 Buyurtmachi: {order.user.full_name}
+📍 Manzil: {order.address}
+💵 Narxi: {order.total_price} so'm
+📦 Buyurtma raqami: #{order.id}
+🕐 Vaqti: {order.created_at.strftime('%Y-%m-%d %H:%M')}
+
+Mahsulotlar:
+"""
+
+    for item in order.items.all():
+        text += f"• {item.product_variant.product.product_name_uz} x {item.quantity}\n"
+    text += "\nRahmat! Buyurtmangiz tez orada yetkaziladi. 🚚"
+
+    url = f"https://api.telegram.org/bot{BOT_B_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": chat_id,
+        "text": text,
+        "parse_mode": "HTML"
+    }
+
+    response = requests.post(url, json=payload)
+    if response.status_code != 200:
+        print("Telegram xabar yuborishda xatolik:", response.text)
+
+
 class CreateOrderAPIView(APIView):
 
     def post(self, request, *args, **kwargs):
@@ -678,6 +713,14 @@ class CreateOrderAPIView(APIView):
         except Exception as e:
             print(f"Telegramga xabar yuborishda xatolik: {e}")
 
+        # return Response({"order_id": order.id, "total_price": order.total_price}, status=status.HTTP_201_CREATED)
+
+        # ✅ TELEGRAM XABAR YUBORILADI:
+        try:
+            send_telegram_user_message(order)
+        except Exception as e:
+            print(f"Telegramga xabar yuborishda xatolik: {e}")
+
         return Response({"order_id": order.id, "total_price": order.total_price}, status=status.HTTP_201_CREATED)
 
 
@@ -688,7 +731,8 @@ class OrderUserListAPIView(APIView):
             raise ValidationError({'telegram_id': 'required'})
 
         user = get_object_or_404(BotUser, telegram_id=telegram_id)
-        orders = Order.objects.filter(user=user, items__product_variant__product__shop=user.active_shop).distinct().order_by(
+        orders = Order.objects.filter(user=user,
+                                      items__product_variant__product__shop=user.active_shop).distinct().order_by(
             '-created_at')
         serializer = OrderSerializer(orders, many=True)
 
