@@ -628,20 +628,19 @@ def send_telegram_user_message(order):
 
     chat_id = user.telegram_id  # bu joyda group chat ID yoki username bo'lishi mumkin
     text = f"""
-🛒 <b>Yangi zakaz!</b>
+    <b>✅ Buyurtmangiz muvaffaqiyatli qabul qilindi!</b>
 
-👤 Buyurtmachi: {order.user.full_name}
-📍 Manzil: {order.address}
-💵 Narxi: {order.total_price} so'm
-📦 Buyurtma raqami: #{order.id}
-🕐 Vaqti: {order.created_at.strftime('%Y-%m-%d %H:%M')}
+🧾 <b>Buyurtma raqami:</b> <code>#{order.id}</code>
+👤 <b>F.I.O:</b> {order.user.full_name}
+📍 <b>Manzil:</b> {order.address}
+💵 <b>Umumiy narx:</b> <b>{order.total_price} so'm</b>
+🕒 <b>Buyurtma vaqti:</b> {order.created_at.strftime('%Y-%m-%d %H:%M')}
 
-Mahsulotlar:
-"""
-
+📦 <b>Mahsulotlar:</b>
+    """
     for item in order.items.all():
-        text += f"• {item.product_variant.product.product_name_uz} x {item.quantity}\n"
-    text += "\nRahmat! Buyurtmangiz tez orada yetkaziladi. 🚚"
+        text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b>\n"
+    text += "\n📬 <i>Buyurtmangiz tez orada yetkaziladi. Biz bilan bo‘lganingiz uchun rahmat!</i> 🙏"
 
     url = f"https://api.telegram.org/bot{BOT_B_TOKEN}/sendMessage"
     payload = {
