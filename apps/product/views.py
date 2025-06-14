@@ -644,10 +644,19 @@ def send_telegram_user_message(order):
     text += "\n📬 <i>Buyurtmangiz tez orada yetkaziladi. Biz bilan bo‘lganingiz uchun rahmat!</i> 🙏"
 
     url = f"https://api.telegram.org/bot{BOT_B_TOKEN}/sendMessage"
+    reply_markup = {
+        "inline_keyboard": [[
+            {
+                "text": "💳 To‘lov qilish",
+                "callback_data": "to'lov"
+            }
+        ]]
+    }
     payload = {
         "chat_id": chat_id,
         "text": text,
-        "parse_mode": "HTML"
+        "parse_mode": "HTML",
+        "reply_markup": reply_markup
     }
 
     response = requests.post(url, json=payload)
