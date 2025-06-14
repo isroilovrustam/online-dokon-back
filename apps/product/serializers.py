@@ -263,9 +263,8 @@ class OrderStatusUpdateSerializer(serializers.ModelSerializer):
     def validate_status(self, value):
         valid_statuses = [choice[0] for choice in Order.STATUS_CHOICES]
         if value not in valid_statuses:
-            raise serializers.ValidationError("Invalid status value.")
+            raise serializers.ValidationError("Noto‘g‘ri status qiymati.")
         return value
-
 
     def update(self, instance, validated_data):
         old_status = instance.status
@@ -284,6 +283,9 @@ class OrderStatusUpdateSerializer(serializers.ModelSerializer):
     def send_status_update_message(self, order):
         user = order.user
         chat_id = user.telegram_id  # User modelda telegram_id maydon bo‘lishi kerak
+        if not chat_id:
+            print("Foydalanuvchining Telegram ID si yo‘q.")
+            return
         status_text = dict(Order.STATUS_CHOICES).get(order.status, order.status)
 
         text = f"""
@@ -302,6 +304,8 @@ class OrderStatusUpdateSerializer(serializers.ModelSerializer):
         }
 
         try:
-            requests.post(url, json=payload)
+            response = requests.post(url, json=payload)
+            if response.status_code != 200:
+                print("Telegram xabarda xatolik:", response.text)
         except Exception as e:
             print(f"Telegramga xabar yuborishda xatolik: {e}")
