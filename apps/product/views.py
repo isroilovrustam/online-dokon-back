@@ -606,7 +606,7 @@ Mahsulotlar:
 """
 
     for item in order.items.all():
-        text += f"• {item.product_variant.product.product_name_uz} x {item.quantity}\n"
+        text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b>\n<b>Rangi</b>: {item.product_variant.color.color}  <b>Razmeri</b>: {item.product_variant.size.size}"
 
     url = f"https://api.telegram.org/bot{BOT_B_TOKEN}/sendMessage"
     payload = {
@@ -639,7 +639,7 @@ def send_telegram_user_message(order):
 📦 <b>Mahsulotlar:</b>
 """
     for item in order.items.all():
-        text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b>\n{item.product_variant.color.color}\n - {item.product_variant.size.size}"
+        text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b>\n<b>Rangi</b>: {item.product_variant.color.color}  <b>Razmeri</b>: {item.product_variant.size.size}"
     text += "\n📬 <i>Buyurtmangiz tez orada yetkaziladi. Biz bilan bo‘lganingiz uchun rahmat!</i> 🙏"
 
     url = f"https://api.telegram.org/bot{BOT_B_TOKEN}/sendMessage"
