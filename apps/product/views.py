@@ -597,7 +597,7 @@ def send_telegram_order_message(shop, order):
 🛒 <b>Yangi zakaz!</b>
 
 👤 <b>Buyurtmachi: </b> {order.user.full_name}
-🆔 <b>Buyurtmachi username: </b> {order.user.username}
+🆔 <b>Buyurtmachi username: </b> {order.user.telegram_username}
 📍 <b>Manzil:</b> {order.address}
 💵 <b>Umumiy narx:</b> <b>{order.total_price} so'm</b>
 🧾 <b>Buyurtma raqami:</b> <code>#{order.id}</code>
