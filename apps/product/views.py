@@ -648,7 +648,7 @@ def send_telegram_user_message(shop, order):
         "inline_keyboard": [[
             {
                 "text": "💳 To‘lov qilish",
-                "callback_data": "to'lov"
+                "callback_data": f"to'lov:{order.id}",
             }
         ]]
     }
