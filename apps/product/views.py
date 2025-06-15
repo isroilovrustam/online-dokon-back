@@ -597,7 +597,7 @@ def send_telegram_order_message(shop, order):
 🛒 <b>Yangi zakaz!</b>
 
 👤 <b>Buyurtmachi: </b> {order.user.full_name}
-🆔 <b>Buyurtmachi username: </b> @{order.user.username}
+🆔 <b>Buyurtmachi username: </b> {order.user.username}
 📍 <b>Manzil:</b> {order.address}
 💵 <b>Umumiy narx:</b> <b>{order.total_price} so'm</b>
 🧾 <b>Buyurtma raqami:</b> <code>#{order.id}</code>
@@ -641,7 +641,7 @@ def send_telegram_user_message(shop, order):
 """
     for item in order.items.all():
         text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b>\n<b>Rangi</b>: {item.product_variant.color.color}  <b>Razmeri</b>: {item.product_variant.size.size}\n"
-    text += "\n📬 <i>Buyurtmangiz tez orada yetkaziladi. Biz bilan bo‘lganingiz uchun rahmat!</i> 🙏"
+    text += "\n📬 <i>Buyurtmangiz tez orada yetkaziladi. Biz bilan bo‘lganingiz uchun rahmat!</i>"
 
     url = f"https://api.telegram.org/bot{BOT_B_TOKEN}/sendMessage"
     reply_markup = {
