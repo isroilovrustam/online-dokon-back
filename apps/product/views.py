@@ -592,12 +592,28 @@ def send_telegram_order_message(shop, order):
         print("Do'konning Telegram guruhi belgilanmagan.")
         return
 
-    chat_id = shop.telegram_group  # bu joyda group chat ID yoki username bo'lishi mumkin
-    text = f"""
+    chat_id = shop.telegram_group
+    lang = order.user.language  # 'uz' yoki 'ru'
+
+    if lang == 'ru':
+        text = f"""
+🛒 <b>Новый заказ!</b>
+
+👤 <b>Покупатель:</b> {order.user.full_name}
+🆔 <b>Юзернейм:</b> {order.user.telegram_username}
+📍 <b>Адрес:</b> {order.address}
+💵 <b>Общая сумма:</b> <b>{order.total_price} сум</b>
+🧾 <b>Номер заказа:</b> <code>#{order.id}</code>
+🕒 <b>Дата заказа:</b> {order.created_at.strftime('%Y-%m-%d')}
+
+Товары:
+"""
+    else:
+        text = f"""
 🛒 <b>Yangi zakaz!</b>
 
-👤 <b>Buyurtmachi: </b> {order.user.full_name}
-🆔 <b>Buyurtmachi username: </b> {order.user.telegram_username}
+👤 <b>Buyurtmachi:</b> {order.user.full_name}
+🆔 <b>Username:</b> {order.user.telegram_username}
 📍 <b>Manzil:</b> {order.address}
 💵 <b>Umumiy narx:</b> <b>{order.total_price} so'm</b>
 🧾 <b>Buyurtma raqami:</b> <code>#{order.id}</code>
@@ -607,7 +623,10 @@ Mahsulotlar:
 """
 
     for item in order.items.all():
-        text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b>\n<b>Rangi</b>: {item.product_variant.color.color}  <b>Razmeri</b>: {item.product_variant.size.size}\n"
+        if lang == 'ru':
+            text += f"▫️ <b>{item.product_variant.product.product_name_ru}</b> x <b>{item.quantity}</b>\nЦвет: <b>{item.product_variant.color.color}</b>, Размер: <b>{item.product_variant.size.size}</b>\n"
+        else:
+            text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b>\n<b>Rangi:</b> {item.product_variant.color.color}  <b>Razmeri:</b> {item.product_variant.size.size}\n"
 
     url = f"https://api.telegram.org/bot{BOT_B_TOKEN}/sendMessage"
     payload = {
@@ -621,15 +640,31 @@ Mahsulotlar:
         print("Telegram xabar yuborishda xatolik:", response.text)
 
 
+
 def send_telegram_user_message(shop, order):
     user = order.user
     if not user.telegram_id:
         print("Foydalanuvchining Telegram ID si mavjud emas.")
         return
 
-    chat_id = user.telegram_id  # bu joyda group chat ID yoki username bo'lishi mumkin
-    text = f"""
-    <b>✅ Buyurtmangiz muvaffaqiyatli qabul qilindi!</b>
+    chat_id = user.telegram_id
+    lang = user.language  # 'uz' yoki 'ru'
+
+    if lang == 'ru':
+        text = f"""
+<b>✅ Ваш заказ успешно принят!</b>
+
+🧾 <b>Номер заказа:</b> <code>#{order.id}</code>
+👤 <b>Ф.И.О:</b> {order.user.full_name}
+📍 <b>Адрес:</b> {order.address}
+💵 <b>Общая сумма:</b> <b>{order.total_price} сум</b>
+🕒 <b>Дата заказа:</b> {order.created_at.strftime('%Y-%m-%d')}
+
+📦 <b>Товары:</b>
+"""
+    else:
+        text = f"""
+<b>✅ Buyurtmangiz muvaffaqiyatli qabul qilindi!</b>
 
 🧾 <b>Buyurtma raqami:</b> <code>#{order.id}</code>
 👤 <b>F.I.O:</b> {order.user.full_name}
@@ -639,19 +674,30 @@ def send_telegram_user_message(shop, order):
 
 📦 <b>Mahsulotlar:</b>
 """
-    for item in order.items.all():
-        text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b>\n<b>Rangi</b>: {item.product_variant.color.color}  <b>Razmeri</b>: {item.product_variant.size.size}\n"
-    text += "\n📬 <i>Buyurtmangiz tez orada yetkaziladi. Biz bilan bo‘lganingiz uchun rahmat!</i>"
 
-    url = f"https://api.telegram.org/bot{BOT_B_TOKEN}/sendMessage"
+    for item in order.items.all():
+        if lang == 'ru':
+            text += f"▫️ <b>{item.product_variant.product.product_name_ru}</b> x <b>{item.quantity}</b>\nЦвет: <b>{item.product_variant.color.color}</b>, Размер: <b>{item.product_variant.size.size}</b>\n"
+        else:
+            text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b>\n<b>Rangi:</b> {item.product_variant.color.color}  <b>Razmeri:</b> {item.product_variant.size.size}\n"
+
+    if lang == 'ru':
+        text += "\n📬 <i>Ваш заказ скоро будет доставлен. Спасибо, что выбрали нас!</i>"
+        button_text = "💳 Оплатить"
+    else:
+        text += "\n📬 <i>Buyurtmangiz tez orada yetkaziladi. Biz bilan bo‘lganingiz uchun rahmat!</i>"
+        button_text = "💳 To‘lov qilish"
+
     reply_markup = {
         "inline_keyboard": [[
             {
-                "text": "💳 To‘lov qilish",
+                "text": button_text,
                 "callback_data": f"to'lov:{order.id}",
             }
         ]]
     }
+
+    url = f"https://api.telegram.org/bot{BOT_B_TOKEN}/sendMessage"
     payload = {
         "chat_id": chat_id,
         "text": text,
