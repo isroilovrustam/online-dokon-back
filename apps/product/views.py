@@ -1,7 +1,7 @@
 from django.db.models import Q
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-
+import json
 from botuser.models import BotUser
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView, \
     RetrieveUpdateDestroyAPIView, get_object_or_404
@@ -621,7 +621,7 @@ Mahsulotlar:
         print("Telegram xabar yuborishda xatolik:", response.text)
 
 
-def send_telegram_user_message(order):
+def send_telegram_user_message(shop, order):
     user = order.user
     if not user.telegram_id:
         print("Foydalanuvchining Telegram ID si mavjud emas.")
@@ -656,7 +656,7 @@ def send_telegram_user_message(order):
         "chat_id": chat_id,
         "text": text,
         "parse_mode": "HTML",
-        "reply_markup": reply_markup
+        "reply_markup": json.dumps(reply_markup)
     }
 
     response = requests.post(url, json=payload)
@@ -726,7 +726,7 @@ class CreateOrderAPIView(APIView):
 
         # ✅ TELEGRAM XABAR YUBORILADI:
         try:
-            send_telegram_user_message(order)
+            send_telegram_user_message(shop, order)
         except Exception as e:
             print(f"Telegramga xabar yuborishda xatolik: {e}")
 
