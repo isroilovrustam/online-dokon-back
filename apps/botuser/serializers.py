@@ -30,6 +30,7 @@ class BotUserSerializer(serializers.ModelSerializer):
                 "is_active": obj.active_shop.is_active,
                 "group_id": obj.active_shop.telegram_group,
                 "phone_number": obj.active_shop.phone_number,
+                "user": obj.active_shop.owner.telegram_username if obj.active_shop.owner else None  # TO‘G‘RILANDI
             }
         return None
 
