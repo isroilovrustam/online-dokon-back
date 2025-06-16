@@ -816,7 +816,24 @@ class OrderDetailAPIView(RetrieveAPIView):
 
 
 def get_status_list():
-    return [{'key': key, 'label': label} for key, label in Order.STATUS_CHOICES]
+    translations = {
+        'new': {'uz': 'Yangi', 'ru': 'Новый'},
+        'confirmed': {'uz': 'Tasdiqlandi', 'ru': 'Подтвержден'},
+        'shipped': {'uz': 'Jo‘natildi', 'ru': 'Отправлен'},
+        'delivered': {'uz': 'Yetkazildi', 'ru': 'Доставлен'},
+        'cancelled': {'uz': 'Bekor qilindi', 'ru': 'Отменен'},
+    }
+
+    return [
+        {
+            'key': key,
+            'uz': translations[key]['uz'],
+            'ru': translations[key]['ru'],
+        }
+        for key, _ in Order.STATUS_CHOICES
+    ]
+
+
 
 
 class OrderListByShopCodeAPIView(APIView):
