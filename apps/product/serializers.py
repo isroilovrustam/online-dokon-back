@@ -31,25 +31,25 @@ class ProductGetCategorySerializer(serializers.ModelSerializer):
 class ProductColorSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductColor
-        fields = ["id",'shop', "color", "color_uz", "color_ru"]
+        fields = ["id", 'shop', "color", "color_uz", "color_ru"]
 
 
 class ProductSizeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductSize
-        fields = ["id",'shop', "size",]
+        fields = ["id", 'shop', "size", ]
 
 
 class ProductTasteSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductTaste
-        fields = ["id",'shop', "taste", "taste_uz", "taste_uz"]
+        fields = ["id", 'shop', "taste", "taste_uz", "taste_uz"]
 
 
 class ProductVolumeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductVolume
-        fields = ["id",'shop', "volume", "volume_uz", "volume_ru"]
+        fields = ["id", 'shop', "volume", "volume_uz", "volume_ru"]
 
 
 class ProductCreateImageSerializer(serializers.ModelSerializer):
@@ -123,6 +123,7 @@ class ProductVariantGetSerializer(serializers.ModelSerializer):
             'price', 'discount_price', 'discount_percent',
             'stock', 'is_active', 'images', 'product_name', 'quantity'
         ]
+
 
 class ProductSerializer(serializers.ModelSerializer):
     # variants = ProductVariantSerializer(many=True, required=False)

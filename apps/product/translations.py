@@ -1,5 +1,5 @@
 from modeltranslation.translator import TranslationOptions, register
-from .models import Product, ProductCategory, ProductColor, ProductTaste
+from .models import Product, ProductCategory, ProductColor, ProductTaste, ProductVolume
 from modeltranslation.admin import TranslationAdmin
 
 
@@ -28,6 +28,10 @@ class ProductTranslationOptions(TranslationOptions):
 @register(ProductTaste)
 class ProductTranslationOptions(TranslationOptions):
     fields = ('taste',)
+
+@register(ProductVolume)
+class ProductTranslationOptions(TranslationOptions):
+    fields = ('volume',)
 
 
 
