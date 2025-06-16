@@ -31,25 +31,25 @@ class ProductGetCategorySerializer(serializers.ModelSerializer):
 class ProductColorSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductColor
-        fields = '__all__'
+        fields = ["id", "color_uz", "color_ru"]
 
 
 class ProductSizeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductSize
-        fields = '__all__'
+        fields = ["id", "size_uz", "size_ru"]
 
 
 class ProductTasteSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductTaste
-        fields = '__all__'
+        fields = ["id", "taste_uz", "tastee_ru"]
 
 
 class ProductVolumeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductVolume
-        fields = '__all__'
+        fields = ["id", "volume_uz", "volume_ru"]
 
 
 class ProductCreateImageSerializer(serializers.ModelSerializer):
