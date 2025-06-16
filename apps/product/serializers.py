@@ -37,7 +37,7 @@ class ProductColorSerializer(serializers.ModelSerializer):
 class ProductSizeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductSize
-        fields = ["id", 'shop', "size", ]
+        fields = ["id", 'shop', "size"]
 
 
 class ProductTasteSerializer(serializers.ModelSerializer):
@@ -49,7 +49,7 @@ class ProductTasteSerializer(serializers.ModelSerializer):
 class ProductVolumeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductVolume
-        fields = ["id", 'shop', "volume", "volume_uz", "volume_ru"]
+        fields = ["id", 'shop', "volume"]
 
 
 class ProductCreateImageSerializer(serializers.ModelSerializer):
