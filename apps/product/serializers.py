@@ -31,25 +31,25 @@ class ProductGetCategorySerializer(serializers.ModelSerializer):
 class ProductColorSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductColor
-        fields = ["id", "color_uz", "color_ru"]
+        fields = ["id", "color", "color_uz", "color_ru"]
 
 
 class ProductSizeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductSize
-        fields = ["id", "size_uz", "size_ru"]
+        fields = ["id", "size"]
 
 
 class ProductTasteSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductTaste
-        fields = ["id", "taste_uz", "tastee_ru"]
+        fields = ["id", "taste", "taste_uz", "taste_uz"]
 
 
 class ProductVolumeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductVolume
-        fields = ["id", "volume_uz", "volume_ru"]
+        fields = ["id", "volume", "volume_uz", "volume_ru"]
 
 
 class ProductCreateImageSerializer(serializers.ModelSerializer):
@@ -88,8 +88,8 @@ class ProductVariantPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductVariant
         fields = [
-            'id', 'color', 'size', 'volume', 'taste', 'product',
-            'price', 'discount_price', 'discount_percent',
+            'id', 'color', 'size', 'volume', 'taste',
+            'product', 'price', 'discount_price', 'discount_percent',
             'stock', 'is_active'
         ]
 
@@ -123,7 +123,6 @@ class ProductVariantGetSerializer(serializers.ModelSerializer):
             'price', 'discount_price', 'discount_percent',
             'stock', 'is_active', 'images', 'product_name', 'quantity'
         ]
-
 
 class ProductSerializer(serializers.ModelSerializer):
     # variants = ProductVariantSerializer(many=True, required=False)
