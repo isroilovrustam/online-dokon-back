@@ -230,13 +230,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'status', 'total_price', 'comment', 'user', 'items'
         ]
 
-    def get_language(self):
-        # So‘rovdan lang ni olamiz, bo‘lmasa uz ni default qilamiz
-        request = self.context.get('request')
-        return request.query_params.get('lang', 'uz') if request else 'uz'
-
     def get_status_display(self, obj):
-        lang = self.get_language()
         translations = {
             'new': {'uz': 'Yangi', 'ru': 'Новый'},
             'confirmed': {'uz': 'Tasdiqlandi', 'ru': 'Подтвержден'},
@@ -244,16 +238,20 @@ class OrderSerializer(serializers.ModelSerializer):
             'delivered': {'uz': 'Yetkazildi', 'ru': 'Доставлен'},
             'cancelled': {'uz': 'Bekor qilindi', 'ru': 'Отменен'},
         }
-        return translations.get(obj.status, {}).get(lang, obj.status)
+        return translations.get(obj.status, {
+            'uz': obj.status,
+            'ru': obj.status
+        })
 
     def get_payment_display(self, obj):
-        lang = self.get_language()
         translations = {
             'Naqd': {'uz': 'Naqd', 'ru': 'Наличные'},
             'Karta': {'uz': 'Karta', 'ru': 'Карта'},
         }
-        return translations.get(obj.payment_type, {}).get(lang, obj.payment_type)
-
+        return translations.get(obj.payment_type, {
+            'uz': obj.payment_type,
+            'ru': obj.payment_type
+        })
 
 class OrderStatusUpdateSerializer(serializers.ModelSerializer):
     class Meta:
