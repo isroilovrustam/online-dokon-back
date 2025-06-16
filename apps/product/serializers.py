@@ -12,7 +12,7 @@ from .models import ProductImage, ProductVariant, Product, ProductVolume, Produc
 class ProductCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductCategory
-        fields = ["id", "name", "image", "shop"]
+        fields = ["id", "name_uz", "name_ru", "image", "shop"]
 
 
 class ProductGetCategorySerializer(serializers.ModelSerializer):
