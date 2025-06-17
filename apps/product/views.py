@@ -602,8 +602,8 @@ def send_telegram_order_message(shop, order):
 
 👤 <b>Покупатель:</b> {order.user.full_name}
 🆔 <b>Юзернейм:</b> {order.user.telegram_username}
-📍 <b>Адрес:</b> {order.address}"
-🔗 <a href='https://yandex.com/maps/?text={quote(order.address)}'>📍 Посмотреть адрес на карте</a>
+📍 <b>Адрес:</b> {order.address}
+🔗 <a href='https://yandex.com/maps/?text={quote(order.address)}'>Посмотреть адрес на карте</a>
 💵 <b>Общая сумма:</b> <b>{order.total_price} сум</b>
 🧾 <b>Номер заказа:</b> <code>#{order.id}</code>
 🕒 <b>Дата заказа:</b> {order.created_at.strftime('%Y-%m-%d')}
@@ -616,8 +616,8 @@ def send_telegram_order_message(shop, order):
 
 👤 <b>Buyurtmachi:</b> {order.user.full_name}
 🆔 <b>Username:</b> {order.user.telegram_username}
-📍 <b>Manzil:</b> f"https://yandex.com/maps/?text={quote(order.address)}"
-🔗 <a href='https://yandex.com/maps/?text={quote(order.address)}'>📍 Manzilni xaritada ko‘rish</a>
+📍 <b>Manzil:</b> {order.address}
+🔗 <a href='https://yandex.com/maps/?text={quote(order.address)}'>Manzilni xaritada ko‘rish</a>
 💵 <b>Umumiy narx:</b> <b>{order.total_price} so'm</b>
 🧾 <b>Buyurtma raqami:</b> <code>#{order.id}</code>
 🕒 <b>Buyurtma vaqti:</b> {order.created_at.strftime('%Y-%m-%d')}
