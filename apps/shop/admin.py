@@ -21,6 +21,13 @@ class ShopAdmin(CustomAdmin):
         ('Do‘kon ma’lumotlari', {
             'fields': ('shop_name', 'owner', 'phone_number', 'shop_code', 'description', 'shop_logo', 'shop_type')
         }),
+        ('Kartalar ma’lumotlari', {
+            'fields': (
+                ('uz_card', 'uz_card_holder'),
+                ('humo_card', 'humo_card_holder'),
+                ('visa_card', 'visa_card_holder'),
+            )
+        }),
         ('Telegram / Instagram', {
             'fields': ('telegram_group', 'telegram_channel', 'instagram_url')
         }),

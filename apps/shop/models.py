@@ -18,6 +18,12 @@ class Shop(models.Model):
                                  unique=True)  # Do'kon koddi yani shu do'kon uchun alohida link beriladi shu link orqali botga start bosganda faqat shu do'kon mahsulotlari ko'rinishi uchun
     description = models.TextField(blank=True, null=True)  # Do'kon haqida qisqacha
     shop_logo = models.ImageField(upload_to='shop_logos/', null=True, blank=True)  # Do'kon logotipi
+    uz_card = models.CharField(max_length=100, blank=True, null=True)
+    uz_card_holder = models.CharField(max_length=100, blank=True, null=True)
+    humo_card = models.CharField(max_length=100, blank=True, null=True)
+    humo_card_holder = models.CharField(max_length=100, blank=True, null=True)
+    visa_card = models.CharField(max_length=100, blank=True, null=True)
+    visa_card_holder = models.CharField(max_length=100, blank=True, null=True)
     telegram_group = models.CharField(max_length=255, blank=True,
                                       null=True)  # Do'konga tushadigon zakazlar telegram guruxiga yuboriladi
     telegram_channel = models.URLField(max_length=255, blank=True, null=True)  # Do'koning telegram kanal linki

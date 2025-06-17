@@ -27,7 +27,8 @@ class ShopSerializer(serializers.ModelSerializer):
                   'description_uz',
                   'description_ru', 'shop_logo', 'telegram_group',
                   'telegram_channel', 'instagram_url', 'is_active', 'subscription_start', 'subscription_end',
-                  'shop_type', 'addresses']
+                  'shop_type', 'addresses', 'uz_card', 'uz_card_holder', 'humo_card', 'humo_card_holder', 'visa_card',
+                  'visa_card_holder']
 
 
 class ShopGetSerializer(serializers.ModelSerializer):
@@ -41,7 +42,9 @@ class ShopGetSerializer(serializers.ModelSerializer):
                   'description_ru',
                   'shop_logo', 'telegram_group',
                   'telegram_channel', 'instagram_url',
-                  'is_active', 'subscription_start', 'subscription_end', 'shop_type', 'addresses']
+                  'is_active', 'subscription_start', 'subscription_end', 'shop_type', 'addresses',
+                  'uz_card', 'uz_card_holder', 'humo_card', 'humo_card_holder', 'visa_card', 'visa_card_holder'
+                  ]
 
     def get_shop_logo(self, obj):
         if obj.shop_logo:
