@@ -15,6 +15,19 @@ class UserAddressSerializer(serializers.ModelSerializer):
         fields = ["id", "full_address", "created_at"]
         read_only_fields = ["id", "created_at"]
 
+class BotUserRegisterSerializer(serializers.ModelSerializer):
+    active_shop = serializers.SlugRelatedField(
+        slug_field="shop_code",
+        queryset=Shop.objects.all(),
+        required=False,
+        allow_null=True
+    )
+
+    class Meta:
+        model = BotUser
+        fields = ["phone_number", "telegram_id", "first_name", "last_name",
+                  "telegram_username", "language", "active_shop"]
+
 
 class BotUserSerializer(serializers.ModelSerializer):
     addresses = UserAddressSerializer(many=True, required=False)

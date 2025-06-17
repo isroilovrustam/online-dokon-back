@@ -7,7 +7,8 @@ from rest_framework.views import APIView
 from shop.models import Shop
 from .models import BotUser, UserAddress, ReklamaBotUser, ReklamaAdmin, ReceptionMethod
 from .serializers import BotUserSerializer, SetActiveShopSerializer, UserAddressSerializer, \
-    ReceptionMethodSerializer, ReklamaCreateSerializer, ReklamaBotUserSerializer, ReklamaAdminSerializer
+    ReceptionMethodSerializer, ReklamaCreateSerializer, ReklamaBotUserSerializer, ReklamaAdminSerializer, \
+    BotUserRegisterSerializer
 
 
 class ReceptionMethodListCreateAPIView(generics.ListCreateAPIView):
@@ -29,7 +30,7 @@ class ReceptionMethodDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 
 class BotUserRegisterView(APIView):
     def post(self, request):
-        serializer = BotUserSerializer(data=request.data)
+        serializer = BotUserRegisterSerializer(data=request.data)
 
         if not serializer.is_valid():
             return Response({"detail": "Invalid data", "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
