@@ -31,12 +31,12 @@ class BotUserSerializer(serializers.ModelSerializer):
                 "group_id": obj.active_shop.telegram_group,
                 "phone_number": obj.active_shop.phone_number,
                 "user": obj.active_shop.owner.telegram_username if obj.active_shop.owner else None,  # TO‘G‘RILANDI
-                "uz_card": obj.active_shop.owner.uz_card,
-                "uz_card_holder": obj.active_shop.owner.uz_card,
-                "humo_card": obj.active_shop.owner.uz_card,
-                "humo_card_holder": obj.active_shop.owner.uz_card,
-                "visa_card": obj.active_shop.owner.uz_card,
-                "visa_card_holder": obj.active_shop.owner.uz_card,
+                "uz_card": obj.active_shop.uz_card,
+                "uz_card_holder": obj.active_shop.uz_card_holder,
+                "humo_card": obj.active_shop.humo_card,
+                "humo_card_holder": obj.active_shop.humo_card_holder,
+                "visa_card": obj.active_shop.visa_card,
+                "visa_card_holder": obj.active_shop.visa_card_holder,
             }
         return None
 
