@@ -30,7 +30,13 @@ class BotUserSerializer(serializers.ModelSerializer):
                 "is_active": obj.active_shop.is_active,
                 "group_id": obj.active_shop.telegram_group,
                 "phone_number": obj.active_shop.phone_number,
-                "user": obj.active_shop.owner.telegram_username if obj.active_shop.owner else None  # TO‘G‘RILANDI
+                "user": obj.active_shop.owner.telegram_username if obj.active_shop.owner else None,  # TO‘G‘RILANDI
+                "uz_card": obj.active_shop.owner.uz_card,
+                "uz_card_holder": obj.active_shop.owner.uz_card,
+                "humo_card": obj.active_shop.owner.uz_card,
+                "humo_card_holder": obj.active_shop.owner.uz_card,
+                "visa_card": obj.active_shop.owner.uz_card,
+                "visa_card_holder": obj.active_shop.owner.uz_card,
             }
         return None
 
