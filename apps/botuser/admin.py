@@ -1,4 +1,5 @@
 from django.contrib import admin
+from .translations import CustomAdmin
 from .models import (
     BotUser, UserAddress,
     Order, OrderItem, FavoriteProduct, ReklamaAdmin, ReklamaBotUser, ReceptionMethod
@@ -10,7 +11,7 @@ class UserAddressInline(admin.TabularInline):
     extra = 0
     readonly_fields = ('created_at',)
 
-admin.site.register(ReceptionMethod)
+admin.site.register(ReceptionMethod, CustomAdmin)
 
 
 
