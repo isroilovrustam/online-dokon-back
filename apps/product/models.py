@@ -4,12 +4,15 @@ from shop.models import Shop
 
 
 class ProductCategory(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
     image = models.FileField(upload_to='product_category_image/', null=True, blank=True)
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='categories')
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        unique_together = ('name', 'shop')
 
 
 class ProductColor(models.Model):
