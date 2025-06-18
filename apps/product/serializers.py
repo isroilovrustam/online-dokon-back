@@ -121,7 +121,7 @@ class ProductVariantGetSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'color', 'size', 'volume', 'taste',
             'price', 'discount_price', 'discount_percent',
-            'stock', 'is_active', 'images', 'product_name', 'quantity'
+            'stock', 'is_active', 'images', 'product_name', 'product_name_uz', 'product_name_ru', 'quantity'
         ]
 
 
@@ -252,6 +252,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'uz': obj.payment_type,
             'ru': obj.payment_type
         })
+
 
 class OrderStatusUpdateSerializer(serializers.ModelSerializer):
     class Meta:
