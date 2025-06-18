@@ -101,10 +101,24 @@ class ProductVariantGetSerializer(serializers.ModelSerializer):
     taste = ProductTasteSerializer()
     images = serializers.SerializerMethodField()
     product_name = serializers.SerializerMethodField()
+    product_name_uz = serializers.SerializerMethodField()
+    product_name_ru = serializers.SerializerMethodField()
     quantity = serializers.SerializerMethodField()
 
+
     def get_product_name(self, obj):
-        return obj.product.product_name if obj.product else None
+        if not obj.product:
+            return None
+        return {
+            'uz': getattr(obj.product, 'product_name_uz', ''),
+            'ru': getattr(obj.product, 'product_name_ru', '')
+        }
+
+    def get_product_name_uz(self, obj):
+        return getattr(obj.product, 'product_name_uz', '') if obj.product else ''
+
+    def get_product_name_ru(self, obj):
+        return getattr(obj.product, 'product_name_ru', '') if obj.product else ''
 
     def get_images(self, obj):
         images = obj.product.images.all()  # assuming a reverse relation: `related_name='images'` in ProductImage
