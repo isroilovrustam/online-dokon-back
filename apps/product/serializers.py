@@ -101,24 +101,10 @@ class ProductVariantGetSerializer(serializers.ModelSerializer):
     taste = ProductTasteSerializer()
     images = serializers.SerializerMethodField()
     product_name = serializers.SerializerMethodField()
-    product_name_uz = serializers.SerializerMethodField()
-    product_name_ru = serializers.SerializerMethodField()
     quantity = serializers.SerializerMethodField()
 
-
     def get_product_name(self, obj):
-        if not obj.product:
-            return None
-        return {
-            'uz': getattr(obj.product, 'product_name_uz', ''),
-            'ru': getattr(obj.product, 'product_name_ru', '')
-        }
-
-    def get_product_name_uz(self, obj):
-        return getattr(obj.product, 'product_name_uz', '') if obj.product else ''
-
-    def get_product_name_ru(self, obj):
-        return getattr(obj.product, 'product_name_ru', '') if obj.product else ''
+        return obj.product.product_name if obj.product else None
 
     def get_images(self, obj):
         images = obj.product.images.all()  # assuming a reverse relation: `related_name='images'` in ProductImage
@@ -135,7 +121,7 @@ class ProductVariantGetSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'color', 'size', 'volume', 'taste',
             'price', 'discount_price', 'discount_percent',
-            'stock', 'is_active', 'images', 'product_name', 'product_name_uz', 'product_name_ru', 'quantity'
+            'stock', 'is_active', 'images', 'product_name', 'quantity'
         ]
 
 
@@ -266,7 +252,6 @@ class OrderSerializer(serializers.ModelSerializer):
             'uz': obj.payment_type,
             'ru': obj.payment_type
         })
-
 
 class OrderStatusUpdateSerializer(serializers.ModelSerializer):
     class Meta:
