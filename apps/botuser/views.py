@@ -159,7 +159,7 @@ class ReklamaCreateView(CreateAPIView):
             raise ValidationError({'telegram_id': 'User not found'})
 
         try:
-            shop = Shop.objects.get(owner=user)
+            shop = Shop.objects.filter(owner=user).first()
         except Shop.DoesNotExist:
             raise ValidationError({'shop': 'No shop found for this user.'})
 
