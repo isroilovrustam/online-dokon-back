@@ -658,7 +658,7 @@ def send_telegram_user_message(shop, order):
 
     if lang == 'ru':
         text = f"""
-<b>✅ Ваш заказ успешно принят!</b>
+<b>✅ Ваш заказ успешно отправлен!</b>
 
 🧾 <b>Номер заказа:</b> <code>#{order.id}</code>
 👤 <b>Ф.И.О:</b> {order.user.full_name}
@@ -670,7 +670,7 @@ def send_telegram_user_message(shop, order):
 """
     else:
         text = f"""
-<b>✅ Buyurtmangiz muvaffaqiyatli qabul qilindi!</b>
+<b>✅ Buyurtmangiz muvaffaqiyatli yuborildi!</b>
 
 🧾 <b>Buyurtma raqami:</b> <code>#{order.id}</code>
 👤 <b>F.I.O:</b> {order.user.full_name}
@@ -690,23 +690,38 @@ def send_telegram_user_message(shop, order):
             text += f"▫️ <b>{item.product_variant.product.product_name_ru}</b> x <b>{item.quantity}</b> <b>\nЦена: {int(item.product_variant.price) * item.quantity}</b>\nЦвет: <b>{item.product_variant.color.color}</b>, Размер: <b>{item.product_variant.size.size}</b>\n"
         else:
             text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b> <b>\nNarxi: {int(item.product_variant.price) * item.quantity}</b>\n<b>Rangi:</b> {item.product_variant.color.color}  <b>Razmeri:</b> {item.product_variant.size.size}\n"
-
-    if lang == 'ru':
-        text += (
-            "\n⚠️ <b>Внимание!</b>\n"
-            f"🔒 <b>По этому заказу предусмотрена предоплата.</b>\n"
-            f"💵 <b>Сумма предоплаты:</b> <b>{total_prepayment} сум</b>\n"
-            "✅ <i>Заказ будет принят после подтверждения предоплаты.</i>\n"
-        )
-        button_text = "💳 Оплатить"
+    if total_prepayment and total_prepayment > 0:
+        if lang == 'ru':
+            text += (
+                "\n⚠️ <b>Внимание!</b>\n"
+                f"🔒 <b>По этому заказу предусмотрена предоплата.</b>\n"
+                f"💵 <b>Сумма предоплаты:</b> <b>{total_prepayment} сум</b>\n"
+                "✅ <i>Заказ будет принят после подтверждения предоплаты.</i>\n"
+            )
+            button_text = "💳 Внести предоплату"
+        else:
+            text += (
+                "\n⚠️ <b>Diqqat!</b>\n"
+                f"🔒 <b>Ushbu buyurtma uchun oldindan to‘lov mavjud.</b>\n"
+                f"💵 <b>Oldindan to‘lov miqdori:</b> <b>{total_prepayment} so'm</b>\n"
+                "✅ <i>Buyurtma to‘lov tasdiqlangandan so‘ng qabul qilinadi.</i>\n"
+            )
+            button_text = "💳 Oldindan to‘lov qilish"
     else:
-        text += (
-            "\n⚠️ <b>Diqqat!</b>\n"
-            f"🔒 <b>Ushbu buyurtma uchun oldindan to‘lov mavjud.</b>\n"
-            f"💵 <b>Oldindan to‘lov miqdori:</b> <b>{total_prepayment} so'm</b>\n"
-            "✅ <i>Buyurtma to‘lov tasdiqlangandan so‘ng qabul qilinadi.</i>\n"
-        )
-        button_text = "💳 To‘lov qilish"
+        if lang == 'ru':
+            text += (
+                "📬 <b>Ваш заказ был отправлен в магазин!</b>\n\n"
+                "💬 В ближайшее время мы сообщим, когда заказ будет принят.\n"
+                "🤝 Спасибо, что вы с нами! 😊"
+            )
+            button_text = "💳 Внести предоплату"
+        elif lang == 'uz':
+            text += (
+                "📬 <b>Buyurtmangiz do‘konga yuborildi!</b>\n\n"
+                "💬 Tez orada buyurtmangiz qabul qilinganligi haqida sizga xabar beramiz.\n"
+                "🤝 Biz bilan bo‘lganingiz uchun tashakkur! 😊"
+            )
+            button_text = "💳 Oldindan to‘lov qilish"
 
     reply_markup = {
         "inline_keyboard": [[
