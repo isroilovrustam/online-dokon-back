@@ -687,12 +687,12 @@ def send_telegram_user_message(shop, order):
             product = item.product_variant.product
             text += f"""
 🔸 <b>ТОВАР #{i}</b>
-┌─────────────────────────────
+┌─────────────────
 │ 📦 <b>{product.product_name_ru}</b>
 │ 🔢 <b>{item.quantity}</b> шт × <b>{int(item.product_variant.price):,}</b> = <b>{int(item.product_variant.price * item.quantity):,} сум</b>
 │ 🎨 <b>{item.product_variant.color.color}</b> | 📏 <b>{item.product_variant.size.size}</b>
-└─────────────────────────────
-            """
+└─────────────────
+"""
 
         text += f"""
 ━━━━━━━━━━━━━━━━━
@@ -741,11 +741,11 @@ def send_telegram_user_message(shop, order):
             product = item.product_variant.product
             text += f"""
 🔸 <b>MAHSULOT #{i}</b>
-┌─────────────────────────────────────
+┌─────────────────
 │ 📦 <b>{product.product_name_uz}</b>
 │ 🔢 <b>{item.quantity}</b> dona × <b>{int(item.product_variant.price):,}</b> = <b>{int(item.product_variant.price * item.quantity):,} so'm</b>
 │ 🎨 <b>{item.product_variant.color.color}</b> | 📏 <b>{item.product_variant.size.size}</b>
-└─────────────────────────────────────
+└─────────────────
             """
 
         text += f"""
