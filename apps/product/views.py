@@ -710,14 +710,14 @@ def send_telegram_user_message(shop, order):
     else:
         if lang == 'ru':
             text += (
-                "📬 <b>Ваш заказ был отправлен в магазин!</b>\n\n"
+                "\n📬 <b>Ваш заказ был отправлен в магазин!</b>\n"
                 "💬 В ближайшее время мы сообщим, когда заказ будет принят.\n"
                 "🤝 Спасибо, что вы с нами! 😊"
             )
             button_text = "💳 Внести предоплату"
         elif lang == 'uz':
             text += (
-                "📬 <b>Buyurtmangiz do‘konga yuborildi!</b>\n\n"
+                "\n📬 <b>Buyurtmangiz do‘konga yuborildi!</b>\n"
                 "💬 Tez orada buyurtmangiz qabul qilinganligi haqida sizga xabar beramiz.\n"
                 "🤝 Biz bilan bo‘lganingiz uchun tashakkur! 😊"
             )
@@ -922,8 +922,25 @@ class OrderStatusUpdateAPIView(UpdateAPIView):
             print("❗️ Foydalanuvchining Telegram ID si mavjud emas.")
             return
 
-        # Holatni matn ko‘rinishida olish
-        status_display = dict(Order.STATUS_CHOICES).get(order.status, order.status)
+        # 1. Status nomini tilga qarab tarjima qilish
+        STATUS_TRANSLATIONS = {
+            'uz': {
+                'new': 'Yangi',
+                'confirmed': 'Tasdiqlandi',
+                'shipped': 'Jo‘natildi',
+                'delivered': 'Yetkazildi',
+                'cancelled': 'Bekor qilindi',
+            },
+            'ru': {
+                'new': 'Новый',
+                'confirmed': 'Подтверждён',
+                'shipped': 'Отправлен',
+                'delivered': 'Доставлен',
+                'cancelled': 'Отменён',
+            }
+        }
+
+        status_display = STATUS_TRANSLATIONS.get(lang, {}).get(order.status, order.status)
 
         # Foydalanuvchining tiliga qarab matnni tanlaymiz
         if lang == 'ru':
