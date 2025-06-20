@@ -598,44 +598,61 @@ def send_telegram_order_message(shop, order):
 
     if lang == 'ru':
         text = f"""
-🛒 <b>Новый заказ!</b>
+🛒 <b>НОВЫЙ ПОРЯДОК!</b>
+━━━━━━━━━━━━━━━━━
 
 👤 <b>Покупатель:</b> {order.user.full_name}
 🆔 <b>Юзернейм:</b> {order.user.telegram_username}
 📍 <b>Адрес:</b> {order.address}
 🔗 <a href='https://yandex.com/maps/?text={quote(order.address)}'>Посмотреть адрес на карте</a>
-💵 <b>Общая сумма:</b> <b>{order.total_price} сум</b>
 🧾 <b>Номер заказа:</b> <code>#{order.id}</code>
 🕒 <b>Дата заказа:</b> {order.created_at.strftime('%Y-%m-%d %H:%M')}
 💬 <b>Комментарий:</b> {order.comment}
 
-Товары:
+━━━━━━━━━━━━━━━━━
+🛍️ <b>ТОВАРЫ В ЗАКАЗЕ:</b>\n
 """
     else:
         text = f"""
-🛒 <b>Yangi zakaz!</b>
+🛒 <b>YANGI ZAKAZ!</b>
+━━━━━━━━━━━━━━━━━
 
 👤 <b>Buyurtmachi:</b> {order.user.full_name}
 🆔 <b>Username:</b> {order.user.telegram_username}
 📍 <b>Manzil:</b> {order.address}
 🔗 <a href='https://yandex.com/maps/?text={quote(order.address)}'>Manzilni xaritada ko‘rish</a>
-💵 <b>Umumiy narx:</b> <b>{order.total_price} so'm</b>
 🧾 <b>Buyurtma raqami:</b> <code>#{order.id}</code>
 🕒 <b>Buyurtma vaqti:</b> {order.created_at.strftime('%Y-%m-%d %H:%M')}
 💬 <b>Izoh:</b> {order.comment}
 
-Mahsulotlar:
+━━━━━━━━━━━━━━━━━
+🛍️ <b>BUYURTMADAGI MAHSULOTLAR:</b>\n
 """
     total_prepayment = 0  # Jami oldindan to'lovni yig'ish uchun
-    for item in order.items.all():
+    for i, item in enumerate(order.items.all(), 1):
         product = item.product_variant.product
         prepayment = (product.prepayment_amount or 0) * item.quantity
         total_prepayment += prepayment
 
         if lang == 'ru':
-            text += f"▫️ <b>{item.product_variant.product.product_name_ru}</b> x <b>{item.quantity}</b> <b>\nЦена: {int(item.product_variant.price) * item.quantity}</b>\nЦвет: <b>{item.product_variant.color.color}</b>, Размер: <b>{item.product_variant.size.size}</b>\n"
+            text += f"<code>#{i}️</code> <b>{product.product_name_ru}</b> x <b>{item.quantity}</b> <b>\nЦена:</b> {int(item.product_variant.price) * item.quantity}\n<b>Цвет:</b> {item.product_variant.color.color_ru}, <b>Размер:</b> {item.product_variant.size.size}\n"
         else:
-            text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b> <b>\nNarxi: {int(item.product_variant.price) * item.quantity}</b>\n<b>Rangi:</b> {item.product_variant.color.color}  <b>Razmeri:</b> {item.product_variant.size.size}\n"
+            text += f"<code>#{i}️</code> <b>{product.product_name_uz}</b> x <b>{item.quantity}</b> <b>\nNarxi:</b> {int(item.product_variant.price) * item.quantity}\n<b>Rangi:</b> {item.product_variant.color.color_uz}  <b>Razmeri:</b> {item.product_variant.size.size}\n"
+    if lang == 'uz':
+        text += f"""\n
+━━━━━━━━━━━━━━━━━
+💵 <b>JAMI: {order.total_price:,} so'm</b>
+Oldindan to'lov: {total_prepayment}
+━━━━━━━━━━━━━━━━━
+
+"""
+    elif lang == 'ru':
+        text += f"""\n
+━━━━━━━━━━━━━━━━━
+💵 <b>ИТОГО: {order.total_price:,} сум</b>
+Предоплата: {total_prepayment}
+━━━━━━━━━━━━━━━━━
+"""
 
     url = f"https://api.telegram.org/bot{BOT_B_TOKEN}/sendMessage"
     payload = {
@@ -657,8 +674,6 @@ def send_telegram_user_message(shop, order):
 
     chat_id = user.telegram_id
     lang = user.language  # 'uz' yoki 'ru'
-
-
 
     if lang == 'ru':
         text = f"""
