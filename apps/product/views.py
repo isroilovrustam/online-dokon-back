@@ -697,9 +697,9 @@ def send_telegram_user_message(shop, order):
         prepayment = (product.prepayment_amount or 0) * item.quantity
         total_prepayment += prepayment
         if lang == 'ru':
-            text += f"#{i}️ <b>{product.product_name_ru}</b> x <b>{item.quantity}</b> <b>\nЦена:</b> {int(item.product_variant.price) * item.quantity}\n<b>Цвет:</b> {item.product_variant.color.color_ru}, <b>Размер:</b> {item.product_variant.size.size}\n"
+            text += f"<code>#{i}️</code> <b>{product.product_name_ru}</b> x <b>{item.quantity}</b> <b>\nЦена:</b> {int(item.product_variant.price) * item.quantity}\n<b>Цвет:</b> {item.product_variant.color.color_ru}, <b>Размер:</b> {item.product_variant.size.size}\n"
         else:
-            text += f"#{i}️ <b>{product.product_name_uz}</b> x <b>{item.quantity}</b> <b>\nNarxi:</b> {int(item.product_variant.price) * item.quantity}\n<b>Rangi:</b> {item.product_variant.color.color_uz}  <b>Razmeri:</b> {item.product_variant.size.size}\n"
+            text += f"<code>#{i}️</code> <b>{product.product_name_uz}</b> x <b>{item.quantity}</b> <b>\nNarxi:</b> {int(item.product_variant.price) * item.quantity}\n<b>Rangi:</b> {item.product_variant.color.color_uz}  <b>Razmeri:</b> {item.product_variant.size.size}\n"
     if total_prepayment and total_prepayment > 0:
         if lang == 'ru':
             text += (
