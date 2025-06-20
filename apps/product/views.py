@@ -607,6 +607,7 @@ def send_telegram_order_message(shop, order):
 💵 <b>Общая сумма:</b> <b>{order.total_price} сум</b>
 🧾 <b>Номер заказа:</b> <code>#{order.id}</code>
 🕒 <b>Дата заказа:</b> {order.created_at.strftime('%Y-%m-%d %H:%M')}
+💬 <b>Комментарий:</b> {order.comment}
 
 Товары:
 """
@@ -621,6 +622,7 @@ def send_telegram_order_message(shop, order):
 💵 <b>Umumiy narx:</b> <b>{order.total_price} so'm</b>
 🧾 <b>Buyurtma raqami:</b> <code>#{order.id}</code>
 🕒 <b>Buyurtma vaqti:</b> {order.created_at.strftime('%Y-%m-%d %H:%M')}
+💬 <b>Izoh:</b> {order.comment}
 
 Mahsulotlar:
 """
@@ -665,6 +667,7 @@ def send_telegram_user_message(shop, order):
 📍 <b>Адрес:</b> {order.address}
 💵 <b>Общая сумма:</b> <b>{order.total_price} сум</b>
 🕒 <b>Дата заказа:</b> {order.created_at.strftime('%Y-%m-%d %H:%M')}
+💬 <b>Комментарий:</b> {order.comment}
 
 📦 <b>Товары:</b>
 """
@@ -677,6 +680,7 @@ def send_telegram_user_message(shop, order):
 📍 <b>Manzil:</b> {order.address}
 💵 <b>Umumiy narx:</b> <b>{order.total_price} so'm</b>
 🕒 <b>Buyurtma vaqti:</b> {order.created_at.strftime('%Y-%m-%d %H:%M')}
+💬 <b>Izoh:</b> {order.comment}
 
 📦 <b>Mahsulotlar:</b>
 """
