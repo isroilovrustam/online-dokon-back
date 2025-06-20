@@ -606,7 +606,7 @@ def send_telegram_order_message(shop, order):
 🔗 <a href='https://yandex.com/maps/?text={quote(order.address)}'>Посмотреть адрес на карте</a>
 💵 <b>Общая сумма:</b> <b>{order.total_price} сум</b>
 🧾 <b>Номер заказа:</b> <code>#{order.id}</code>
-🕒 <b>Дата заказа:</b> {order.created_at.strftime('%Y-%m-%d')}
+🕒 <b>Дата заказа:</b> {order.created_at.strftime('%Y-%m-%d %H:%M')}
 
 Товары:
 """
@@ -620,16 +620,16 @@ def send_telegram_order_message(shop, order):
 🔗 <a href='https://yandex.com/maps/?text={quote(order.address)}'>Manzilni xaritada ko‘rish</a>
 💵 <b>Umumiy narx:</b> <b>{order.total_price} so'm</b>
 🧾 <b>Buyurtma raqami:</b> <code>#{order.id}</code>
-🕒 <b>Buyurtma vaqti:</b> {order.created_at.strftime('%Y-%m-%d')}
+🕒 <b>Buyurtma vaqti:</b> {order.created_at.strftime('%Y-%m-%d %H:%M')}
 
 Mahsulotlar:
 """
 
     for item in order.items.all():
         if lang == 'ru':
-            text += f"▫️ <b>{item.product_variant.product.product_name_ru}</b> x <b>{item.quantity}</b>\nЦвет: <b>{item.product_variant.color.color}</b>, Размер: <b>{item.product_variant.size.size}</b>\n"
+            text += f"▫️ <b>{item.product_variant.product.product_name_ru}</b> x <b>{item.quantity}</b> <b>Цена: {item.product_variant.price * item.quantity}</b>\nЦвет: <b>{item.product_variant.color.color}</b>, Размер: <b>{item.product_variant.size.size}</b>\n"
         else:
-            text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b>\n<b>Rangi:</b> {item.product_variant.color.color}  <b>Razmeri:</b> {item.product_variant.size.size}\n"
+            text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b> <b>Narxi: {item.product_variant.price * item.quantity}</b>\n<b>Rangi:</b> {item.product_variant.color.color}  <b>Razmeri:</b> {item.product_variant.size.size}\n"
 
     url = f"https://api.telegram.org/bot{BOT_B_TOKEN}/sendMessage"
     payload = {
@@ -661,7 +661,7 @@ def send_telegram_user_message(shop, order):
 👤 <b>Ф.И.О:</b> {order.user.full_name}
 📍 <b>Адрес:</b> {order.address}
 💵 <b>Общая сумма:</b> <b>{order.total_price} сум</b>
-🕒 <b>Дата заказа:</b> {order.created_at.strftime('%Y-%m-%d')}
+🕒 <b>Дата заказа:</b> {order.created_at.strftime('%Y-%m-%d %H:%M')}
 
 📦 <b>Товары:</b>
 """
@@ -673,16 +673,16 @@ def send_telegram_user_message(shop, order):
 👤 <b>F.I.O:</b> {order.user.full_name}
 📍 <b>Manzil:</b> {order.address}
 💵 <b>Umumiy narx:</b> <b>{order.total_price} so'm</b>
-🕒 <b>Buyurtma vaqti:</b> {order.created_at.strftime('%Y-%m-%d')}
+🕒 <b>Buyurtma vaqti:</b> {order.created_at.strftime('%Y-%m-%d %H:%M')}
 
 📦 <b>Mahsulotlar:</b>
 """
 
     for item in order.items.all():
         if lang == 'ru':
-            text += f"▫️ <b>{item.product_variant.product.product_name_ru}</b> x <b>{item.quantity}</b>\nЦвет: <b>{item.product_variant.color.color}</b>, Размер: <b>{item.product_variant.size.size}</b>\n"
+            text += f"▫️ <b>{item.product_variant.product.product_name_ru}</b> x <b>{item.quantity}</b> <b>Цена: {item.product_variant.price * item.quantity}</b>\nЦвет: <b>{item.product_variant.color.color}</b>, Размер: <b>{item.product_variant.size.size}</b>\n"
         else:
-            text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b>\n<b>Rangi:</b> {item.product_variant.color.color}  <b>Razmeri:</b> {item.product_variant.size.size}\n"
+            text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b> <b>Narxi: {item.product_variant.price * item.quantity}</b>\n<b>Rangi:</b> {item.product_variant.color.color}  <b>Razmeri:</b> {item.product_variant.size.size}\n"
 
     if lang == 'ru':
         text += "\n📬 <i>Ваш заказ скоро будет доставлен. Спасибо, что выбрали нас!</i>"
