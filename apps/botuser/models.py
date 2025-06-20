@@ -76,10 +76,10 @@ class Order(models.Model):
     address = models.CharField(max_length=255, null=True, blank=True)
     payment_type = models.CharField(max_length=20, choices=PAYMENT_TYPE, default='Naqd')
     reception_method = models.ForeignKey(ReceptionMethod, on_delete=models.SET_NULL, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new')  # Buyurtma holati
     total_price = models.BigIntegerField(default=0)  # Umumiy narx
     comment = models.TextField(null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
