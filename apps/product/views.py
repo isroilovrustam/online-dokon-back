@@ -658,15 +658,12 @@ def send_telegram_user_message(shop, order):
     chat_id = user.telegram_id
     lang = user.language  # 'uz' yoki 'ru'
 
-    total_prepayment = 0
-    for item in order.items.all():
-        product = item.product_variant.product
-        prepayment = (product.prepayment_amount or 0) * item.quantity
-        total_prepayment += prepayment
+
 
     if lang == 'ru':
         text = f"""
-<b>✅ Ваш заказ успешно отправлен!</b>
+🎉 <b>ЗАКАЗ УСПЕШНО ОФОРМЛЕН!</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 🧾 <b>Номер заказа:</b> <code>#{order.id}</code>
 👤 <b>Ф.И.О:</b> {order.user.full_name}
@@ -679,8 +676,10 @@ def send_telegram_user_message(shop, order):
 """
     else:
         text = f"""
-<b>✅ Buyurtmangiz muvaffaqiyatli yuborildi!</b>
+🎉 <b>BUYURTMA MUVAFFAQIYATLI RASMIYLASHTRILDI!</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+📋 <b>BUYURTMA TAFSILOTLARI:</b>
 🧾 <b>Buyurtma raqami:</b> <code>#{order.id}</code>
 👤 <b>F.I.O:</b> {order.user.full_name}
 📍 <b>Manzil:</b> {order.address}
@@ -688,18 +687,22 @@ def send_telegram_user_message(shop, order):
 🕒 <b>Buyurtma vaqti:</b> {order.created_at.strftime('%Y-%m-%d %H:%M')}
 💬 <b>Izoh:</b> {order.comment}
 
-📦 <b>Mahsulotlar:</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🛍️ <b>BUYURTMADAGI MAHSULOTLAR:</b>
 """
-
-
+    total_prepayment = 0
+    for i, item in enumerate(order.items.all(), 1):
+        product = item.product_variant.product
+        prepayment = (product.prepayment_amount or 0) * item.quantity
+        total_prepayment += prepayment
         if lang == 'ru':
-            text += f"▫️ <b>{item.product_variant.product.product_name_ru}</b> x <b>{item.quantity}</b> <b>\nЦена: {int(item.product_variant.price) * item.quantity}</b>\nЦвет: <b>{item.product_variant.color.color}</b>, Размер: <b>{item.product_variant.size.size}</b>\n"
+            text += f"#{i}️ <b>{product.product_name_ru}</b> x <b>{item.quantity}</b> <b>\nЦена: {int(item.product_variant.price) * item.quantity}</b>\nЦвет: <b>{item.product_variant.color.color}</b>, Размер: <b>{item.product_variant.size.size}</b>\n"
         else:
-            text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b> <b>\nNarxi: {int(item.product_variant.price) * item.quantity}</b>\n<b>Rangi:</b> {item.product_variant.color.color}  <b>Razmeri:</b> {item.product_variant.size.size}\n"
+            text += f"#{i}️ <b>{product.product_name_uz}</b> x <b>{item.quantity}</b> <b>\nNarxi: {int(item.product_variant.price) * item.quantity}</b>\n<b>Rangi:</b> {item.product_variant.color.color}  <b>Razmeri:</b> {item.product_variant.size.size}\n"
     if total_prepayment and total_prepayment > 0:
         if lang == 'ru':
             text += (
-                "\n⚠️ <b>Внимание!</b>\n"
+                "\n⚠️ <b>ВНИМАНИЕ!</b>\n"
                 f"🔒 <b>По этому заказу предусмотрена предоплата.</b>\n"
                 f"💵 <b>Сумма предоплаты:</b> <b>{total_prepayment} сум</b>\n"
                 "✅ <i>Заказ будет принят после подтверждения предоплаты.</i>\n"
@@ -707,7 +710,7 @@ def send_telegram_user_message(shop, order):
             button_text = "💳 Внести предоплату"
         else:
             text += (
-                "\n⚠️ <b>Diqqat!</b>\n"
+                "\n⚠️ <b>DIQQAT!</b>\n"
                 f"🔒 <b>Ushbu buyurtma uchun oldindan to‘lov mavjud.</b>\n"
                 f"💵 <b>Oldindan to‘lov miqdori:</b> <b>{total_prepayment} so'm</b>\n"
                 "✅ <i>Buyurtma to‘lov tasdiqlangandan so‘ng qabul qilinadi.</i>\n"
