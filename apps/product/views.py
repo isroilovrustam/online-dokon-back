@@ -658,7 +658,6 @@ def send_telegram_user_message(shop, order):
     chat_id = user.telegram_id
     lang = user.language  # 'uz' yoki 'ru'
 
-    # Umumiy ma'lumotlar
     total_prepayment = 0
     for item in order.items.all():
         product = item.product_variant.product
@@ -666,114 +665,70 @@ def send_telegram_user_message(shop, order):
         total_prepayment += prepayment
 
     if lang == 'ru':
-        # RUSCHA - Yangi dizayn
         text = f"""
-🎉 <b>ЗАКАЗ УСПЕШНО ОФОРМЛЕН!</b>
-━━━━━━━━━━━━━━━━━
+<b>✅ Ваш заказ успешно отправлен!</b>
 
-📋 <b>ДЕТАЛИ ЗАКАЗА:</b>
-🧾 Номер: <code>#{order.id}</code>
-👤 Клиент: <b>{order.user.full_name}</b>
-📍 Адрес: <i>{order.address}</i>
-🕒 Время: <i>{order.created_at.strftime('%d.%m.%Y %H:%M')}</i>
-💬 Комментарий: <i>{order.comment}</i>
+🧾 <b>Номер заказа:</b> <code>#{order.id}</code>
+👤 <b>Ф.И.О:</b> {order.user.full_name}
+📍 <b>Адрес:</b> {order.address}
+💵 <b>Общая сумма:</b> <b>{order.total_price} сум</b>
+🕒 <b>Дата заказа:</b> {order.created_at.strftime('%Y-%m-%d %H:%M')}
+💬 <b>Комментарий:</b> {order.comment}
 
-━━━━━━━━━━━━━━━━━
-🛍️ <b>ТОВАРЫ В ЗАКАЗЕ:</b>
+📦 <b>Товары:</b>
 """
-
-        # Mahsulotlar ro'yxati
-        for i, item in enumerate(order.items.all(), 1):
-            product = item.product_variant.product
-            text += f"""
-🔸 <b>ТОВАР #{i}</b>
-┌─────────────────
-│ 📦 <b>{product.product_name_ru}</b>
-│ 🔢 <b>{item.quantity}</b> шт × <b>{int(item.product_variant.price):,}</b> = <b>{int(item.product_variant.price * item.quantity):,} сум</b>
-│ 🎨 <b>{item.product_variant.color.color}</b> | 📏 <b>{item.product_variant.size.size}</b>
-└─────────────────
-"""
-
-        text += f"""
-━━━━━━━━━━━━━━━━━
-💵 <b>ИТОГО: {order.total_price:,} сум</b>
-━━━━━━━━━━━━━━━━━
-"""
-
-        # Oldindan to'lov bo'lsa
-        if total_prepayment and total_prepayment > 0:
-            text += f"""
-🔔 <b>ВНИМАНИЕ!</b>
-💳 Требуется предоплата: <b>{total_prepayment:,} сум</b>
-⏰ Заказ будет обработан после оплаты
-
-🏦 <b>СПОСОБЫ ОПЛАТЫ:</b>
-- Uzcard, Humo, Visa
-"""
-            button_text = "💳 Внести предоплату"
-        else:
-            text += """
-✅ <b>ЗАКАЗ ПРИНЯТ В РАБОТУ!</b>
-📞 Мы свяжемся с вами в ближайшее время
-🤝 Спасибо за покупку! 😊
-"""
-            button_text = "💳 Внести предоплату"
-
     else:
-        # O'ZBEKCHA - Yangi dizayn
         text = f"""
-🎉 <b>BUYURTMA MUVAFFAQIYATLI RASMIYLASHTRILDI!</b>
-━━━━━━━━━━━━━━━━━
+<b>✅ Buyurtmangiz muvaffaqiyatli yuborildi!</b>
 
-📋 <b>BUYURTMA TAFSILOTLARI:</b>
-🧾 Raqam: <code>#{order.id}</code>
-👤 Mijoz: <b>{order.user.full_name}</b>
-📍 Manzil: <i>{order.address}</i>
-🕒 Vaqt: <i>{order.created_at.strftime('%d.%m.%Y %H:%M')}</i>
-💬 Izoh: <i>{order.comment}</i>
+🧾 <b>Buyurtma raqami:</b> <code>#{order.id}</code>
+👤 <b>F.I.O:</b> {order.user.full_name}
+📍 <b>Manzil:</b> {order.address}
+💵 <b>Umumiy narx:</b> <b>{order.total_price} so'm</b>
+🕒 <b>Buyurtma vaqti:</b> {order.created_at.strftime('%Y-%m-%d %H:%M')}
+💬 <b>Izoh:</b> {order.comment}
 
-━━━━━━━━━━━━━━━━━
-🛍️ <b>BUYURTMADAGI MAHSULOTLAR:</b>
+📦 <b>Mahsulotlar:</b>
 """
 
-        # Mahsulotlar ro'yxati
-        for i, item in enumerate(order.items.all(), 1):
-            product = item.product_variant.product
-            text += f"""
-🔸 <b>MAHSULOT #{i}</b>
-┌─────────────────
-│ 📦 <b>{product.product_name_uz}</b>
-│ 🔢 <b>{item.quantity}</b> dona × <b>{int(item.product_variant.price):,}</b> = <b>{int(item.product_variant.price * item.quantity):,} so'm</b>
-│ 🎨 <b>{item.product_variant.color.color}</b> | 📏 <b>{item.product_variant.size.size}</b>
-└─────────────────
-            """
 
-        text += f"""
-━━━━━━━━━━━━━━━━━
-💵 <b>JAMI: {order.total_price:,} so'm</b>
-━━━━━━━━━━━━━━━━━
-"""
-
-        # Oldindan to'lov bo'lsa
-        if total_prepayment and total_prepayment > 0:
-            text += f"""
-🔔 <b>DIQQAT!</b>
-💳 Oldindan to'lov: <b>{total_prepayment:,} so'm</b>
-⏰ Buyurtma to'lovdan so'ng qayta ishlanydi
-
-🏦 <b>TO'LOV USULLARI:</b>
-- Uzcard, Humo, Visa
-"""
-            button_text = "💳 Oldindan to'lov qilish"
+        if lang == 'ru':
+            text += f"▫️ <b>{item.product_variant.product.product_name_ru}</b> x <b>{item.quantity}</b> <b>\nЦена: {int(item.product_variant.price) * item.quantity}</b>\nЦвет: <b>{item.product_variant.color.color}</b>, Размер: <b>{item.product_variant.size.size}</b>\n"
         else:
-            text += """
-✅ <b>BUYURTMA QABUL QILINDI!</b>
-📞 Tez orada siz bilan bog'lanamiz
-🤝 Xarid uchun rahmat! 😊
-"""
-            button_text = "💳 Oldindan to'lov qilish"
+            text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b> <b>\nNarxi: {int(item.product_variant.price) * item.quantity}</b>\n<b>Rangi:</b> {item.product_variant.color.color}  <b>Razmeri:</b> {item.product_variant.size.size}\n"
+    if total_prepayment and total_prepayment > 0:
+        if lang == 'ru':
+            text += (
+                "\n⚠️ <b>Внимание!</b>\n"
+                f"🔒 <b>По этому заказу предусмотрена предоплата.</b>\n"
+                f"💵 <b>Сумма предоплаты:</b> <b>{total_prepayment} сум</b>\n"
+                "✅ <i>Заказ будет принят после подтверждения предоплаты.</i>\n"
+            )
+            button_text = "💳 Внести предоплату"
+        else:
+            text += (
+                "\n⚠️ <b>Diqqat!</b>\n"
+                f"🔒 <b>Ushbu buyurtma uchun oldindan to‘lov mavjud.</b>\n"
+                f"💵 <b>Oldindan to‘lov miqdori:</b> <b>{total_prepayment} so'm</b>\n"
+                "✅ <i>Buyurtma to‘lov tasdiqlangandan so‘ng qabul qilinadi.</i>\n"
+            )
+            button_text = "💳 Oldindan to‘lov qilish"
+    else:
+        if lang == 'ru':
+            text += (
+                "\n📬 <b>Ваш заказ был отправлен в магазин!</b>\n"
+                "💬 В ближайшее время мы сообщим, когда заказ будет принят.\n"
+                "🤝 Спасибо, что вы с нами! 😊"
+            )
+            button_text = "💳 Внести предоплату"
+        elif lang == 'uz':
+            text += (
+                "\n📬 <b>Buyurtmangiz do‘konga yuborildi!</b>\n"
+                "💬 Tez orada buyurtmangiz qabul qilinganligi haqida sizga xabar beramiz.\n"
+                "🤝 Biz bilan bo‘lganingiz uchun tashakkur! 😊"
+            )
+            button_text = "💳 Oldindan to‘lov qilish"
 
-    # Button yaratish
     reply_markup = {
         "inline_keyboard": [[
             {
@@ -783,7 +738,6 @@ def send_telegram_user_message(shop, order):
         ]]
     }
 
-    # Telegram API ga yuborish
     url = f"https://api.telegram.org/bot{BOT_B_TOKEN}/sendMessage"
     payload = {
         "chat_id": chat_id,
