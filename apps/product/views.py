@@ -624,12 +624,16 @@ def send_telegram_order_message(shop, order):
 
 Mahsulotlar:
 """
-
+    total_prepayment=0  # Jami oldindan to'lovni yig'ish uchun
     for item in order.items.all():
+        product = item.product_variant.product
+        prepayment = (product.prepayment_amount or 0) * item.quantity
+        total_prepayment += prepayment
+
         if lang == 'ru':
-            text += f"▫️ <b>{item.product_variant.product.product_name_ru}</b> x <b>{item.quantity}</b> <b>Цена: {int(item.product_variant.price) * item.quantity}</b>\nЦвет: <b>{item.product_variant.color.color}</b>, Размер: <b>{item.product_variant.size.size}</b>\n"
+            text += f"▫️ <b>{item.product_variant.product.product_name_ru}</b> x <b>{item.quantity}</b> <b>\nЦена: {int(item.product_variant.price) * item.quantity}</b>\nЦвет: <b>{item.product_variant.color.color}</b>, Размер: <b>{item.product_variant.size.size}</b>\n"
         else:
-            text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b> <b>Narxi: {int(item.product_variant.price) * item.quantity}</b>\n<b>Rangi:</b> {item.product_variant.color.color}  <b>Razmeri:</b> {item.product_variant.size.size}\n"
+            text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b> <b>\nNarxi: {int(item.product_variant.price) * item.quantity}</b>\n<b>Rangi:</b> {item.product_variant.color.color}  <b>Razmeri:</b> {item.product_variant.size.size}\n"
 
     url = f"https://api.telegram.org/bot{BOT_B_TOKEN}/sendMessage"
     payload = {
@@ -641,7 +645,6 @@ Mahsulotlar:
     response = requests.post(url, json=payload)
     if response.status_code != 200:
         print("Telegram xabar yuborishda xatolik:", response.text)
-
 
 
 def send_telegram_user_message(shop, order):
@@ -677,18 +680,32 @@ def send_telegram_user_message(shop, order):
 
 📦 <b>Mahsulotlar:</b>
 """
-
+    total_prepayment=0
     for item in order.items.all():
+        product = item.product_variant.product
+        prepayment = (product.prepayment_amount or 0) * item.quantity
+        total_prepayment += prepayment
+
         if lang == 'ru':
-            text += f"▫️ <b>{item.product_variant.product.product_name_ru}</b> x <b>{item.quantity}</b> <b>Цена: {int(item.product_variant.price) * item.quantity}</b>\nЦвет: <b>{item.product_variant.color.color}</b>, Размер: <b>{item.product_variant.size.size}</b>\n"
+            text += f"▫️ <b>{item.product_variant.product.product_name_ru}</b> x <b>{item.quantity}</b> <b>\nЦена: {int(item.product_variant.price) * item.quantity}</b>\nЦвет: <b>{item.product_variant.color.color}</b>, Размер: <b>{item.product_variant.size.size}</b>\n"
         else:
-            text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b> <b>Narxi: {int(item.product_variant.price) * item.quantity}</b>\n<b>Rangi:</b> {item.product_variant.color.color}  <b>Razmeri:</b> {item.product_variant.size.size}\n"
+            text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b> <b>\nNarxi: {int(item.product_variant.price) * item.quantity}</b>\n<b>Rangi:</b> {item.product_variant.color.color}  <b>Razmeri:</b> {item.product_variant.size.size}\n"
 
     if lang == 'ru':
-        text += "\n📬 <i>Ваш заказ скоро будет доставлен. Спасибо, что выбрали нас!</i>"
+        text += (
+            "\n⚠️ <b>Внимание!</b>\n"
+            f"🔒 <b>По этому заказу предусмотрена предоплата.</b>\n"
+            f"💵 <b>Сумма предоплаты:</b> <b>{total_prepayment} сум</b>\n"
+            "✅ <i>Заказ будет принят после подтверждения предоплаты.</i>\n"
+        )
         button_text = "💳 Оплатить"
     else:
-        text += "\n📬 <i>Buyurtmangiz tez orada yetkaziladi. Biz bilan bo‘lganingiz uchun rahmat!</i>"
+        text += (
+            "\n⚠️ <b>Diqqat!</b>\n"
+            f"🔒 <b>Ushbu buyurtma uchun oldindan to‘lov mavjud.</b>\n"
+            f"💵 <b>Oldindan to‘lov miqdori:</b> <b>{total_prepayment} so'm</b>\n"
+            "✅ <i>Buyurtma to‘lov tasdiqlangandan so‘ng qabul qilinadi.</i>\n"
+        )
         button_text = "💳 To‘lov qilish"
 
     reply_markup = {
@@ -835,8 +852,6 @@ def get_status_list():
         }
         for key, _ in Order.STATUS_CHOICES
     ]
-
-
 
 
 class OrderListByShopCodeAPIView(APIView):
