@@ -627,9 +627,9 @@ Mahsulotlar:
 
     for item in order.items.all():
         if lang == 'ru':
-            text += f"▫️ <b>{item.product_variant.product.product_name_ru}</b> x <b>{item.quantity}</b> <b>Цена: {item.product_variant.price * item.quantity}</b>\nЦвет: <b>{item.product_variant.color.color}</b>, Размер: <b>{item.product_variant.size.size}</b>\n"
+            text += f"▫️ <b>{item.product_variant.product.product_name_ru}</b> x <b>{item.quantity}</b> <b>Цена: {int(item.product_variant.price) * item.quantity}</b>\nЦвет: <b>{item.product_variant.color.color}</b>, Размер: <b>{item.product_variant.size.size}</b>\n"
         else:
-            text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b> <b>Narxi: {item.product_variant.price * item.quantity}</b>\n<b>Rangi:</b> {item.product_variant.color.color}  <b>Razmeri:</b> {item.product_variant.size.size}\n"
+            text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b> <b>Narxi: {int(item.product_variant.price) * item.quantity}</b>\n<b>Rangi:</b> {item.product_variant.color.color}  <b>Razmeri:</b> {item.product_variant.size.size}\n"
 
     url = f"https://api.telegram.org/bot{BOT_B_TOKEN}/sendMessage"
     payload = {
@@ -680,9 +680,9 @@ def send_telegram_user_message(shop, order):
 
     for item in order.items.all():
         if lang == 'ru':
-            text += f"▫️ <b>{item.product_variant.product.product_name_ru}</b> x <b>{item.quantity}</b> <b>Цена: {item.product_variant.price * item.quantity}</b>\nЦвет: <b>{item.product_variant.color.color}</b>, Размер: <b>{item.product_variant.size.size}</b>\n"
+            text += f"▫️ <b>{item.product_variant.product.product_name_ru}</b> x <b>{item.quantity}</b> <b>Цена: {int(item.product_variant.price) * item.quantity}</b>\nЦвет: <b>{item.product_variant.color.color}</b>, Размер: <b>{item.product_variant.size.size}</b>\n"
         else:
-            text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b> <b>Narxi: {item.product_variant.price * item.quantity}</b>\n<b>Rangi:</b> {item.product_variant.color.color}  <b>Razmeri:</b> {item.product_variant.size.size}\n"
+            text += f"▫️ <b>{item.product_variant.product.product_name_uz}</b> x <b>{item.quantity}</b> <b>Narxi: {int(item.product_variant.price) * item.quantity}</b>\n<b>Rangi:</b> {item.product_variant.color.color}  <b>Razmeri:</b> {item.product_variant.size.size}\n"
 
     if lang == 'ru':
         text += "\n📬 <i>Ваш заказ скоро будет доставлен. Спасибо, что выбрали нас!</i>"
