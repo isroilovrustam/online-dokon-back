@@ -624,7 +624,7 @@ def send_telegram_order_message(shop, order):
 
 Mahsulotlar:
 """
-    total_prepayment=0  # Jami oldindan to'lovni yig'ish uchun
+    total_prepayment = 0  # Jami oldindan to'lovni yig'ish uchun
     for item in order.items.all():
         product = item.product_variant.product
         prepayment = (product.prepayment_amount or 0) * item.quantity
@@ -680,7 +680,7 @@ def send_telegram_user_message(shop, order):
 
 📦 <b>Mahsulotlar:</b>
 """
-    total_prepayment=0
+    total_prepayment = 0
     for item in order.items.all():
         product = item.product_variant.product
         prepayment = (product.prepayment_amount or 0) * item.quantity
@@ -878,6 +878,69 @@ class OrderStatusUpdateAPIView(UpdateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderStatusUpdateSerializer
     lookup_field = 'pk'
+
+    def update(self, request, *args, **kwargs):
+        # 1. Buyurtmani olish
+        order = self.get_object()
+        old_status = order.status
+
+        # 2. Serializer orqali statusni validatsiya qilish
+        serializer = self.get_serializer(order, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+
+        # 3. Statusni yangilash
+        new_status = serializer.validated_data.get('status')
+        serializer.save()
+
+        # 4. Agar status o‘zgargan bo‘lsa, foydalanuvchiga Telegram xabar yuborish
+        if old_status != new_status:
+            self.send_status_update_message(order)
+
+        return Response({"detail": "Buyurtma holati muvaffaqiyatli yangilandi."}, status=status.HTTP_200_OK)
+
+    def send_status_update_message(self, order):
+        user = order.user
+        chat_id = user.telegram_id
+        lang = user.language  # 'uz' yoki 'ru'
+
+        if not chat_id:
+            print("❗️ Foydalanuvchining Telegram ID si mavjud emas.")
+            return
+
+        # Holatni matn ko‘rinishida olish
+        status_display = dict(Order.STATUS_CHOICES).get(order.status, order.status)
+
+        # Foydalanuvchining tiliga qarab matnni tanlaymiz
+        if lang == 'ru':
+            text = f"""
+📦 <b>Ваш заказ обновлён!</b>
+
+🧾 <b>Номер заказа:</b> #{order.id}
+📍 <b>Адрес:</b> {order.address or "Не указан"}
+🆕 <b>Новый статус:</b> {status_display}
+        """
+        else:
+            text = f"""
+📦 <b>Sizning buyurtmangiz yangilandi!</b>
+
+🧾 <b>Buyurtma raqami:</b> #{order.id}
+📍 <b>Manzil:</b> {order.address or "Ko‘rsatilmagan"}
+🆕 <b>Yangi holat:</b> {status_display}
+        """
+
+        url = f"https://api.telegram.org/bot{BOT_B_TOKEN}/sendMessage"
+        payload = {
+            "chat_id": chat_id,
+            "text": text,
+            "parse_mode": "HTML"
+        }
+
+        try:
+            response = requests.post(url, json=payload)
+            if response.status_code != 200:
+                print("❌ Telegram xabarda xatolik:", response.text)
+        except Exception as e:
+            print(f"❌ Telegramga xabar yuborishda xatolik: {e}")
 
 
 class ProductImageCreateView(CreateAPIView):

@@ -78,7 +78,7 @@ class Order(models.Model):
     reception_method = models.ForeignKey(ReceptionMethod, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new')  # Buyurtma holati
-    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # Umumiy narx
+    total_price = models.BigIntegerField(default=0)  # Umumiy narx
     comment = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

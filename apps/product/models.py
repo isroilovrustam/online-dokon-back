@@ -53,9 +53,7 @@ class Product(models.Model):
     product_name = models.CharField(max_length=255, verbose_name="Mahsulot nomi")
     description = models.TextField(blank=True, null=True, verbose_name="Qisqacha tavsif")
 
-    prepayment_amount = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
+    prepayment_amount = models.BigIntegerField(
         null=True,
         blank=True,
         help_text="Agar oldindan to‘lov talab qilinsa, shu yerga summani kiriting"
