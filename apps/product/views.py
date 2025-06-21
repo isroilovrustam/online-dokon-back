@@ -599,7 +599,7 @@ def send_telegram_order_message(shop, order):
     if lang == 'ru':
         text = f"""
 🛒 <b>НОВЫЙ ПОРЯДОК!</b>
-━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━
 
 👤 <b>Покупатель:</b> {order.user.full_name}
 🆔 <b>Юзернейм:</b> {order.user.telegram_username}
@@ -609,13 +609,13 @@ def send_telegram_order_message(shop, order):
 🕒 <b>Дата заказа:</b> {order.created_at.strftime('%Y-%m-%d %H:%M')}
 💬 <b>Комментарий:</b> {order.comment}
 
-━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━
 🛍️ <b>ТОВАРЫ В ЗАКАЗЕ:</b>\n
 """
     else:
         text = f"""
 🛒 <b>YANGI ZAKAZ!</b>
-━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━
 
 👤 <b>Buyurtmachi:</b> {order.user.full_name}
 🆔 <b>Username:</b> {order.user.telegram_username}
@@ -625,7 +625,7 @@ def send_telegram_order_message(shop, order):
 🕒 <b>Buyurtma vaqti:</b> {order.created_at.strftime('%Y-%m-%d %H:%M')}
 💬 <b>Izoh:</b> {order.comment}
 
-━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━
 🛍️ <b>BUYURTMADAGI MAHSULOTLAR:</b>\n
 """
     total_prepayment = 0  # Jami oldindan to'lovni yig'ish uchun
@@ -640,18 +640,18 @@ def send_telegram_order_message(shop, order):
             text += f"<code>#{i}️</code> <b>{product.product_name_uz}</b> x <b>{item.quantity}</b> <b>\nNarxi:</b> {int(item.product_variant.price) * item.quantity}\n<b>Rangi:</b> {item.product_variant.color.color_uz}  <b>Razmeri:</b> {item.product_variant.size.size}\n"
     if lang == 'uz':
         text += f"""\n
-━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━
 💵 <b>JAMI: {order.total_price:,} so'm</b>
 Oldindan to'lov: {total_prepayment}
-━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━
 
 """
     elif lang == 'ru':
         text += f"""\n
-━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━
 💵 <b>ИТОГО: {order.total_price:,} сум</b>
 Предоплата: {total_prepayment}
-━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━
 """
 
     url = f"https://api.telegram.org/bot{BOT_B_TOKEN}/sendMessage"
@@ -678,7 +678,7 @@ def send_telegram_user_message(shop, order):
     if lang == 'ru':
         text = f"""
 🎉 <b>ЗАКАЗ УСПЕШНО ОФОРМЛЕН!</b>
-━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━
 
 🧾 <b>Номер заказа:</b> <code>#{order.id}</code>
 👤 <b>Ф.И.О:</b> {order.user.full_name}
@@ -687,13 +687,13 @@ def send_telegram_user_message(shop, order):
 🕒 <b>Дата заказа:</b> {order.created_at.strftime('%Y-%m-%d %H:%M')}
 💬 <b>Комментарий:</b> {order.comment}
 
-━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━
 🛍️ <b>ТОВАРЫ В ЗАКАЗЕ:</b>\n
 """
     else:
         text = f"""
 🎉 <b>BUYURTMA MUVAFFAQIYATLI RASMIYLASHTRILDI!</b>
-━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━
 
 📋 <b>BUYURTMA TAFSILOTLARI:</b>
 🧾 <b>Buyurtma raqami:</b> <code>#{order.id}</code>
@@ -703,7 +703,7 @@ def send_telegram_user_message(shop, order):
 🕒 <b>Buyurtma vaqti:</b> {order.created_at.strftime('%Y-%m-%d %H:%M')}
 💬 <b>Izoh:</b> {order.comment}
 
-━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━
 🛍️ <b>BUYURTMADAGI MAHSULOTLAR:</b>\n
 """
     total_prepayment = 0
