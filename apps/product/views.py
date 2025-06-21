@@ -776,6 +776,7 @@ class CreateOrderAPIView(APIView):
         user = request.data.get('telegram_id')
         items = request.data.get('items')  # List of items with product_id and quantity
         address_id = request.data.get('address_id')
+        comment = request.data.get('comment')
         total_price = request.data.get('total_price')
         if not items or not isinstance(items, list):
             return Response({"detail": "Items are required and must be a list."}, status=status.HTTP_400_BAD_REQUEST)
@@ -801,7 +802,7 @@ class CreateOrderAPIView(APIView):
             user = BotUser.objects.get(telegram_id=user)
         except BotUser.DoesNotExist:
             return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
-        order = Order.objects.create(user=user, address=address.full_address, total_price=0)
+        order = Order.objects.create(user=user, address=address.full_address, comment=comment, total_price=0)
         shop = None
         for item in items:
             basket_id = item.get('basket_id')
