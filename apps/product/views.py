@@ -948,6 +948,12 @@ class OrderStatusUpdateAPIView(UpdateAPIView):
             print("❗️ Foydalanuvchining Telegram ID si mavjud emas.")
             return
 
+        # Do'kon nomini olish
+        shop_name = None
+        first_item = order.items.first()  # OrderItem ichidan biri orqali do‘konni aniqlaymiz
+        if first_item:
+            shop_name = first_item.product_variant.product.shop.name
+
         # 1. Status nomini tilga qarab tarjima qilish
         STATUS_TRANSLATIONS = {
             'uz': {
@@ -973,6 +979,7 @@ class OrderStatusUpdateAPIView(UpdateAPIView):
             text = f"""
 📦 <b>Ваш заказ обновлён!</b>
 
+🏪 <b>Магазин:</b> {shop_name or "Неизвестный"}
 🧾 <b>Номер заказа:</b> #{order.id}
 📍 <b>Адрес:</b> {order.address or "Не указан"}
 🆕 <b>Новый статус:</b> {status_display}
@@ -981,6 +988,7 @@ class OrderStatusUpdateAPIView(UpdateAPIView):
             text = f"""
 📦 <b>Sizning buyurtmangiz yangilandi!</b>
 
+🏪 <b>Do‘kon:</b> {shop_name or "Noma’lum"}
 🧾 <b>Buyurtma raqami:</b> #{order.id}
 📍 <b>Manzil:</b> {order.address or "Ko‘rsatilmagan"}
 🆕 <b>Yangi holat:</b> {status_display}
