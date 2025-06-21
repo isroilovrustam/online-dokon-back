@@ -952,7 +952,7 @@ class OrderStatusUpdateAPIView(UpdateAPIView):
         shop_name = None
         first_item = order.items.first()  # OrderItem ichidan biri orqali do‘konni aniqlaymiz
         if first_item:
-            shop_name = first_item.product_variant.product.shop.name
+            shop_name = first_item.product_variant.product.shop.shop_name
 
         # 1. Status nomini tilga qarab tarjima qilish
         STATUS_TRANSLATIONS = {
